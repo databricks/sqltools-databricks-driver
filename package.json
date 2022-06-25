@@ -1,0 +1,80 @@
+{
+    "name": "sqltools-databricks-driver",
+    "displayName": "Databricks",
+    "description": "Databricks SQL driver for SQLTools",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.42.0"
+    },
+    "publisher": "Databricks",
+    "license": "LicenseRef-LICENSE",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/databricks/sqltools-databricks-driver.git"
+    },
+    "bugs": {
+        "url": "https://github.com/databricks/sqltools-databricks-driver/issues",
+        "email": "bilal.aslam@databricks.com"
+    },
+    "preview": true,
+    "icon": "icons/databricks-logo.png",
+    "galleryBanner": {
+        "theme": "light"
+    },
+    "scripts": {
+        "vscode:prepublish": "yarn run build",
+        "vscode:package": "vsce package --yarn --allow-star-activation",
+        "build": "rm -rf out && yarn run compile:ext && yarn run compile:ls",
+        "esbuild": "esbuild --platform=node --tsconfig=./tsconfig.json --external:vscode --log-level=error --color=true --format=cjs",
+        "compile:ext": "yarn run esbuild --bundle ./src/extension.ts --outfile=./out/extension.js --target=es2017 --define:process.env.PRODUCT=\"'ext'\"",
+        "compile:ls": "yarn run esbuild --bundle ./src/ls/plugin.ts --outfile=./out/ls/plugin.js --target=es2015 --define:process.env.PRODUCT=\"'ls'\"",
+        "check": "tsc -p ./ --noEmit",
+        "fix": "eslint src --ext ts --fix && prettier . --write",
+        "test:lint": "eslint src --ext ts && prettier . -c",
+        "test:unit": "true",
+        "test": "yarn run test:lint && yarn run test:unit",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./"
+    },
+    "keywords": [
+        "databricks",
+        "databricks sql",
+        "sqltools-driver"
+    ],
+    "categories": [
+        "Lakehouse",
+        "Databases"
+    ],
+    "extensionDependencies": [
+        "mtxr.sqltools"
+    ],
+    "activationEvents": [
+        "*",
+        "onLanguage:sql",
+        "onCommand:sqltools.*"
+    ],
+    "main": "./out/extension.js",
+    "dependencies": {
+        "@databricks/sql": "^0.1.8-beta.1",
+        "@sqltools/base-driver": "latest",
+        "@sqltools/types": "latest",
+        "@typescript-eslint/eslint-plugin": "^5.45.1",
+        "node-fetch": "^2.6.7",
+        "uuid": "^7.0.2"
+    },
+    "devDependencies": {
+        "@babel/preset-env": "^7.5.5",
+        "@types/node": "^14.0.9",
+        "@types/node-fetch": "2",
+        "@types/uuid": "^8.3.4",
+        "@types/vscode": "^1.42.0",
+        "@typescript-eslint/parser": "^5.45.1",
+        "@vscode/vsce": "^2.15.0",
+        "esbuild": "^0.14.48",
+        "eslint": "^8.29.0",
+        "eslint-config-prettier": "^8.5.0",
+        "eslint-plugin-no-only-tests": "^3.1.0",
+        "prettier": "^2.8.0",
+        "typescript": "^3.7.3"
+    }
+}
