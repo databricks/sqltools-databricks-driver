@@ -1,6 +1,6 @@
 {
   "name": "sqltools-databricks-driver",
-  "displayName": "Databricks SQL driver for SQLTools",
+  "displayName": "Databricks",
   "description": "Databricks SQL driver for SQLTools",
   "version": "0.0.1",
   "engines": {
