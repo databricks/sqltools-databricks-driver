@@ -156,21 +156,21 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
     }));
   }
 
-  // private async getDatabases(): Promise<NSDatabase.IDatabase[]> {
-  //   const session = await this.connection;
+  private async getDatabases(): Promise<NSDatabase.IDatabase[]> {
+    const session = await this.connection;
 
-  //   const result = await session.getSchemas({
-  //     catalogName: this.credentials.catalog
-  //   }).then(this.handleOperation);
+    const result = await session.getSchemas({
+      catalogName: this.credentials.catalog
+    }).then(this.handleOperation);
 
-  //   return result.map(item => ({
-  //     type: ContextValue.DATABASE,
-  //     label: item.TABLE_SCHEM,
-  //     schema: item.TABLE_SCHEM,
-  //     database: item.TABLE_SCHEM,
-  //     iconId: 'database'
-  //   }));
-  // }
+    return result.map(item => ({
+      type: ContextValue.DATABASE,
+      label: item.TABLE_SCHEM,
+      schema: item.TABLE_SCHEM,
+      database: item.TABLE_SCHEM,
+      iconId: 'database'
+    }));
+  }
 
   private async getTablesAndViews(database: NSDatabase.IDatabase): Promise<NSDatabase.ITable[]> {
     const session = await this.connection;
@@ -207,12 +207,16 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
     switch (item.type) {
       case ContextValue.CONNECTION:
       case ContextValue.CONNECTED_CONNECTION:
-        return <NSDatabase.IDatabase[]>[{
-          label: this.credentials.schema,
-          database: this.credentials.schema,
-          type: ContextValue.DATABASE,
-          detail: 'database'
-        }];
+        if (this.credentials.schema) {
+          return <NSDatabase.IDatabase[]>[{
+            label: this.credentials.schema,
+            database: this.credentials.schema,
+            type: ContextValue.DATABASE,
+            detail: 'database'
+          }];
+        } else {
+          return this.getDatabases()
+        }
       case ContextValue.DATABASE:
         return <MConnectionExplorer.IChildItem[]>[
           { label: 'Tables', type: ContextValue.RESOURCE_GROUP, iconId: 'folder', childType: ContextValue.TABLE },

@@ -33,7 +33,6 @@
     "host",
     "path",
     "token",
-    "catalog",
-    "schema"
+    "catalog"
   ]
 }
