@@ -7,7 +7,7 @@
     "vscode": "^1.42.0"
   },
   "publisher": "Databricks",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/databricks/sqltools-databricks-driver.git"
@@ -17,7 +17,13 @@
     "email": "bilal.aslam@databricks.com"
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "yarn run build",
+    "vscode:package": "vsce package --yarn --allow-star-activation",
+    "build": "rm -rf out && yarn run compile:ext && yarn run compile:ls",
+    "esbuild": "esbuild --platform=node --tsconfig=./tsconfig.json --external:vscode --log-level=error --color=true --format=cjs",
+    "compile:ext": "yarn run esbuild --bundle ./src/extension.ts --outfile=./out/extension.js --target=es2017 --define:process.env.PRODUCT=\"'ext'\"",
+    "compile:ls": "yarn run esbuild --bundle ./src/ls/plugin.ts --outfile=./out/ls/plugin.js --target=es2015 --define:process.env.PRODUCT=\"'ls'\"",
+    "check": "tsc -p ./ --noEmit",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./"
   },
@@ -49,6 +55,8 @@
     "@babel/preset-env": "^7.5.5",
     "@types/node": "^14.0.9",
     "@types/vscode": "^1.42.0",
-    "typescript": "^3.7.3"
+    "esbuild": "^0.14.48",
+    "typescript": "^3.7.3",
+    "vsce": "^2.9.2"
   }
 }
