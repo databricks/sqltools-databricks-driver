@@ -16,6 +16,11 @@
     "url": "https://github.com/databricks/sqltools-databricks-driver/issues",
     "email": "bilal.aslam@databricks.com"
   },
+  "preview": true,
+  "icon": "icons/databricks-logo.png",
+  "galleryBanner": {
+    "theme": "light"
+  },
   "scripts": {
     "vscode:prepublish": "yarn run build",
     "vscode:package": "vsce package --yarn --allow-star-activation",
