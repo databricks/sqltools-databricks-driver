@@ -5,6 +5,7 @@ import { v4 as generateId } from 'uuid';
 
 import { DBSQLClient } from '@databricks/sql';
 import IHiveSession from '@databricks/sql/dist/contracts/IHiveSession';
+import IOperation from '@databricks/sql/dist/contracts/IOperation';
 
 type DriverLib = IHiveSession;
 type DriverOptions = any;
@@ -26,12 +27,7 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
       token: this.credentials.token
     };
 
-    try {
-      const session = await this.openSession(connectionOptions);
-      this.connection = Promise.resolve(session);
-    } catch (error) {
-      return Promise.reject(error);
-    }
+    this.connection = this.openSession(connectionOptions);
 
     return this.connection;
   }
@@ -53,10 +49,10 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
     return session;
 };
 
-  private async handleOperation(operation) {
-    await utils.waitUntilReady(operation, true, (_stateResponse) => {
-      return;
-    });
+  private async handleOperation(operation: IOperation): Promise<any> {
+    await utils.waitUntilReady(operation, false);
+    
+    operation.setMaxRows(15000);
     await utils.fetchAll(operation);
     await operation.close();
 
@@ -70,7 +66,7 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
   };
 
   public async close() {
-    if (!this.connection) return Promise.resolve();
+    if (!this.connection) return;
 
     const session = await this.connection;
     await session.close();
@@ -137,11 +133,13 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
   private async getColumns(parent: NSDatabase.ITable): Promise<NSDatabase.IColumn[]> {
     const session = await this.connection;
 
-    const result = await session.getColumns({
+    const operation = await session.getColumns({
       catalogName: this.credentials.catalog,
       schemaName: this.credentials.schema,
       tableName: parent.label
-    }).then(this.handleOperation);
+    })
+    
+    const result = await this.handleOperation(operation);
     
     return <NSDatabase.IColumn[]>result.map(col => ({
       type: ContextValue.COLUMN,
@@ -177,10 +175,12 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
   private async getTablesAndViews(database: NSDatabase.IDatabase): Promise<NSDatabase.ITable[]> {
     const session = await this.connection;
 
-    const result = await session.getTables({
+    const operation = await session.getTables({
       catalogName: this.credentials.catalog,
       schemaName: database.label
-    }).then(this.handleOperation);
+    });
+    
+    const result = await this.handleOperation(operation);  
 
     return result.map(item => ({
       type: item.TABLE_TYPE === 'VIEW' ? ContextValue.VIEW : ContextValue.TABLE,
@@ -225,6 +225,19 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
         return this.getChildrenForGroup({ item, parent });
     }
     return [];
+  }
+
+  private async getCatalogs() {
+    const session = await this.connection;
+    const catalogs = await this.handleOperation(await session.getCatalogs());
+    
+    console.log("Catalogs", catalogs);
+    return catalogs.map(item => ({
+      type: ContextValue.DATABASE,
+      catalog: item.TABLE_CAT,
+      label: item.TABLE_CAT,
+      isView: false
+    }));
   }
 
   private async getChildrenForGroup({ parent, item }: Arg0<IConnectionDriver['getChildrenForItem']>) {
