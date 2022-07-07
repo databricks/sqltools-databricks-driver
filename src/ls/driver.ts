@@ -79,7 +79,6 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
 
     try {
       const queryResults = await this.execute(session, query);
-      //const resultsAgg: NSDatabase.IResult[] = [];
 
       const cols = [];
       if (queryResults && queryResults.length > 0) {
@@ -231,18 +230,18 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
     return [];
   }
 
-  private async getCatalogs() {
-    const session = await this.connection;
-    const catalogs = await this.handleOperation(await session.getCatalogs());
+  // private async getCatalogs() {
+  //   const session = await this.connection;
+  //   const catalogs = await this.handleOperation(await session.getCatalogs());
     
-    console.log("Catalogs", catalogs);
-    return catalogs.map(item => ({
-      type: ContextValue.DATABASE,
-      catalog: item.TABLE_CAT,
-      label: item.TABLE_CAT,
-      isView: false
-    }));
-  }
+  //   console.log("Catalogs", catalogs);
+  //   return catalogs.map(item => ({
+  //     type: ContextValue.DATABASE,
+  //     catalog: item.TABLE_CAT,
+  //     label: item.TABLE_CAT,
+  //     isView: false
+  //   }));
+  // }
 
   private async getChildrenForGroup({ parent, item }: Arg0<IConnectionDriver['getChildrenForItem']>) {
     console.log({ item, parent });
@@ -255,18 +254,58 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
     return [];
   }
 
-  // TODO: Implement item search
-  public async searchItems(itemType: ContextValue, _search: string, _extraParams: any = {}): Promise<NSDatabase.SearchableItem[]> {
+  public async searchItems(itemType: ContextValue, search: string, _extraParams: any = {}): Promise<NSDatabase.SearchableItem[]> {
     switch (itemType) {
       case ContextValue.TABLE:
       case ContextValue.VIEW:
-        return <NSDatabase.SearchableItem[]>[];
+        return await this.findTables(search)
       case ContextValue.COLUMN:
-        return <NSDatabase.SearchableItem[]>[];
+        return await this.findColumn(search, _extraParams.tables)
     }
     return [];
   }
 
+  // TODO: Implement caching
+  private async findTables(search: string) {
+    if (search == "") return [];
+
+    const session = await this.connection;
+    try {
+      const statement = `SHOW TABLES FROM default like "${search}*"`
+      const result = await this.execute(session, statement); 
+
+      console.log("find table", search, result)
+      return result.map(item => ({
+        type: ContextValue.TABLE,
+        label: item.tableName,
+        database: item.database
+      }));
+    } catch(e) {
+      console.error(e);
+      return []
+    }
+  }
+
+  // TODO: Implement caching
+    private async findColumn(search: string, tables: Array<NSDatabase.IColumn>) {
+    const session = await this.connection;
+    try {
+      const statement = `DESCRIBE TABLE ${tables[0].label};`;
+      const result = await this.execute(session, statement); 
+
+      console.log("find column", search, result)
+      return result.map(item => ({
+        type: ContextValue.COLUMN,
+        label: item.col_name,
+        dataType: item.data_type,
+        table: tables[0]
+      }));
+    } catch(e) {
+      console.error(e);
+      return []
+    }
+  }
+  
   public getStaticCompletions: IConnectionDriver['getStaticCompletions'] = async () => {
     return {};
   }
