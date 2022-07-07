@@ -2,13 +2,38 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
-    "database": {
-      "title": "Database file",
+    "host": {
+      "title": "Host",
+      "type": "string",
+      "minLength": 1
+    },
+    "path": {
+      "title": "Path",
+      "type": "string",
+      "minLength": 1
+    },
+    "token": {
+      "title": "Token",
+      "type": "string",
+      "minLength": 1
+    },
+    "catalog": {
+      "title": "Catalog",
+      "type": "string",
+      "minLength": 1
+    },
+    "schema": {
+      "title": "Schema",
       "type": "string",
       "minLength": 1
     }
+
   },
   "required": [
-    "database"
+    "host",
+    "path",
+    "token",
+    "catalog",
+    "schema"
   ]
 }

@@ -1,4 +1,25 @@
 {
-  "ui:order": ["database"],
-  "database": { "ui:widget": "file" }
+  "ui:order": [
+    "host",
+    "path",
+    "token",
+    "catalog",
+    "schema"
+  ],
+  "host": {
+    "ui:help": "Host name e.g. foo.cloud.databricks.com"
+  },
+  "path": {
+    "ui:help": "HTTP path e.g. /sql/1.0/endpoints/1234abcd"
+  },
+  "token": {
+    "ui:widget": "password",
+    "ui:help": "Personal Access Token"
+  },
+  "catalog": {
+    "ui:help": "Catalog to connect to. Defaults to hive_metastore"
+  },
+  "schema": {
+    "ui:help": "Schema to connect to. Previously known as database"
+  }
 }

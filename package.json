@@ -1,29 +1,34 @@
 {
-  "name": "driver-template",
-  "displayName": "Driver Template",
-  "description": "Driver Template to be used as base for new VSCode SQLTools drivers",
+  "name": "sqltools-databricks-driver",
+  "displayName": "Databricks SQL driver for SQLTools",
+  "description": "Databricks SQL driver for SQLTools",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.42.0"
   },
-  "publisher": "mtxr",
+  "publisher": "Databricks",
   "license": "MIT",
-  "repository": {},
-  "bugs": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/databricks/sqltools-databricks-driver.git"
+  },
+  "bugs": {
+    "url": "https://github.com/databricks/sqltools-databricks-driver/issues",
+    "email": "bilal.aslam@databricks.com"
+  },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./"
   },
   "keywords": [
-    "driver-template",
+    "databricks",
+    "databricks sql",
     "sqltools-driver"
   ],
   "categories": [
-    "Programming Languages",
-    "Snippets",
-    "Formatters",
-    "Other"
+    "Lakehouse",
+    "Databases"
   ],
   "extensionDependencies": [
     "mtxr.sqltools"
@@ -35,6 +40,7 @@
   ],
   "main": "./out/extension.js",
   "dependencies": {
+    "@databricks/sql": "^0.1.8-beta.1",
     "@sqltools/base-driver": "latest",
     "@sqltools/types": "latest",
     "uuid": "^7.0.2"
