@@ -132,6 +132,7 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
   }
 
   private async getColumns(parent: NSDatabase.ITable): Promise<NSDatabase.IColumn[]> {
+    console.time("get columns");
     const session = await this.connection;
 
     const operation = await session.getColumns({
@@ -141,7 +142,8 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
     })
     
     const result = await this.handleOperation(operation);
-    
+    console.timeEnd("get columns");
+
     return <NSDatabase.IColumn[]>result.map(col => ({
       type: ContextValue.COLUMN,
       schema: parent.schema,
@@ -262,7 +264,7 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
       case ContextValue.VIEW:
         return await this.findTables(search)
       case ContextValue.COLUMN:
-        return await this.findColumn(search, _extraParams.tables)
+        return await this.getColumns(_extraParams.tables[0])
     }
     return [];
   }
@@ -281,26 +283,6 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
         type: ContextValue.TABLE,
         label: item.tableName,
         database: item.database
-      }));
-    } catch(e) {
-      console.error(e);
-      return []
-    }
-  }
-
-  // TODO: Implement caching
-    private async findColumn(search: string, tables: Array<NSDatabase.IColumn>) {
-    const session = await this.connection;
-    try {
-      const statement = `DESCRIBE TABLE ${tables[0].label};`;
-      const result = await this.execute(session, statement); 
-
-      console.log("find column", search, result)
-      return result.map(item => ({
-        type: ContextValue.COLUMN,
-        label: item.col_name,
-        dataType: item.data_type,
-        table: tables[0]
       }));
     } catch(e) {
       console.error(e);
