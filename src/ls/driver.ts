@@ -6,6 +6,7 @@ import { v4 as generateId } from 'uuid';
 import { DBSQLClient } from '@databricks/sql';
 import IHiveSession from '@databricks/sql/dist/contracts/IHiveSession';
 import IOperation from '@databricks/sql/dist/contracts/IOperation';
+import { patchHttpConnection } from './patch';
 
 type DriverLib = IHiveSession;
 type DriverOptions = any;
@@ -33,6 +34,7 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
   }
 
   private async openSession(connectionOptions) {
+    patchHttpConnection();
     const client = new DBSQLClient();
 
     if (this.credentials.catalog  == null) {

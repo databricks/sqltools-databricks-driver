@@ -19,6 +19,7 @@
     },
     "catalog": {
       "title": "Catalog",
+      "default": "hive_metastore",
       "type": "string",
       "minLength": 1
     },
@@ -32,7 +33,6 @@
   "required": [
     "host",
     "path",
-    "token",
-    "catalog"
+    "token"
   ]
 }
