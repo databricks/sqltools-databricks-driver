@@ -1,6 +1,6 @@
 import AbstractDriver from '@sqltools/base-driver';
 import queries from './queries';
-import { IConnectionDriver, MConnectionExplorer, NSDatabase, ContextValue, Arg0 } from '@sqltools/types';
+import { IConnectionDriver, MConnectionExplorer, NSDatabase, ContextValue, Arg0, IQueryOptions } from '@sqltools/types';
 import { v4 as generateId } from 'uuid';
 
 import { DBSQLClient } from '@databricks/sql';
@@ -74,6 +74,20 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
     await session.close();
 
     this.connection = null;
+  }
+
+  async showRecords(table: NSDatabase.ITable, opt: IQueryOptions & {
+    limit: number;
+    page?: number;
+  }): Promise<NSDatabase.IResult<any>[]> {
+    console.time("show records");
+
+    const query = `select * from \`${table.label}\` limit ${opt.limit}`;
+    const queryResults = await this.query(query, opt);
+
+    console.timeEnd("show records");
+
+    return queryResults;
   }
 
   public query: (typeof AbstractDriver)['prototype']['query'] = async (query: string, opt = {}) => {
@@ -176,6 +190,7 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
   }
 
   private async getTablesAndViews(database: NSDatabase.IDatabase): Promise<NSDatabase.ITable[]> {
+    console.time("get tables");
     const session = await this.connection;
 
     const operation = await session.getTables({
@@ -184,6 +199,7 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
     });
     
     const result = await this.handleOperation(operation);  
+    console.timeEnd("get tables");
 
     return result.map(item => ({
       type: item.TABLE_TYPE === 'VIEW' ? ContextValue.VIEW : ContextValue.TABLE,
@@ -248,7 +264,6 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
   // }
 
   private async getChildrenForGroup({ parent, item }: Arg0<IConnectionDriver['getChildrenForItem']>) {
-    console.log({ item, parent });
     switch (item.childType) {
       case ContextValue.TABLE:
         return this.getTables(parent as NSDatabase.IDatabase);
@@ -278,7 +293,6 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
       const statement = `SHOW TABLES FROM default like "${search}*"`
       const result = await this.execute(session, statement); 
 
-      console.log("find table", search, result)
       return result.map(item => ({
         type: ContextValue.TABLE,
         label: item.tableName,
