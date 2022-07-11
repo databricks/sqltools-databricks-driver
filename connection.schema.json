@@ -26,9 +26,14 @@
     "schema": {
       "title": "Schema",
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "default": "default"
+    },
+    "sql_execution_api": {
+      "title": "Use SQL execution API (preview)",
+      "type": "boolean",
+      "default": false
     }
-
   },
   "required": [
     "host",

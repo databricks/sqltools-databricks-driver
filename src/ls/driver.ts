@@ -7,8 +7,9 @@ import { DBSQLClient } from '@databricks/sql';
 import IHiveSession from '@databricks/sql/dist/contracts/IHiveSession';
 import IOperation from '@databricks/sql/dist/contracts/IOperation';
 import { patchHttpConnection } from './patch';
+import { SqlClient } from './sql_client';
 
-type DriverLib = IHiveSession;
+type DriverLib = IHiveSession | SqlClient;
 type DriverOptions = any;
 
 const utils = DBSQLClient.utils;
@@ -28,7 +29,17 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
       token: this.credentials.token
     };
 
-    this.connection = this.openSession(connectionOptions);
+    if (this.credentials.sql_execution_api) {
+      console.log("Using SQL execution API");
+      this.connection = Promise.resolve(new SqlClient(
+        this.credentials.host,
+        this.credentials.token,
+        this.credentials.path.split("/").pop()
+      ));
+    } else {
+      console.log("Using Thrift driver");
+      this.connection = this.openSession(connectionOptions);
+    }
 
     return this.connection;
   }
@@ -61,18 +72,24 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
     return utils.getResult(operation).getValue();    
   }
 
-  private async execute(session: IHiveSession, statement: string) {
-    const operation = await session.executeStatement(statement, { runAsync: true });
+  private async execute(session: DriverLib, statement: string) {
+    if (session instanceof SqlClient) {
+      return await session.query(statement);
+    } else {
+      const operation = await session.executeStatement(statement, { runAsync: true });
 
-    return this.handleOperation(operation);
+      return this.handleOperation(operation);
+    }
   };
 
   public async close() {
     if (!this.connection) return;
 
     const session = await this.connection;
-    await session.close();
-
+    if (session instanceof SqlClient) {
+    } else {
+      await session.close();
+    }
     this.connection = null;
   }
 
@@ -149,13 +166,19 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
     console.time("get columns");
     const session = await this.connection;
 
-    const operation = await session.getColumns({
-      catalogName: this.credentials.catalog,
-      schemaName: this.credentials.schema,
-      tableName: parent.label
-    })
-    
-    const result = await this.handleOperation(operation);
+    let result;
+    if (session instanceof SqlClient) {
+      // TODO: ${this.credentials.schema}.
+      result = await session.query(`describe table \`${parent.label}\``);
+    } else {
+      const operation = await session.getColumns({
+        catalogName: this.credentials.catalog,
+        schemaName: this.credentials.schema,
+        tableName: parent.label
+      })
+      
+      result = await this.handleOperation(operation);  
+    }
     console.timeEnd("get columns");
 
     return <NSDatabase.IColumn[]>result.map(col => ({
@@ -166,7 +189,7 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
       dataType: col.TYPE_NAME,
       isNullable: col.NULLABLE === 1,
       table: parent,
-      label: col.COLUMN_NAME,
+      label: col.COLUMN_NAME || col.col_name,
       isPk: false,
       isFk: false,
       iconName: 'column'
@@ -176,9 +199,14 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
   private async getDatabases(): Promise<NSDatabase.IDatabase[]> {
     const session = await this.connection;
 
-    const result = await session.getSchemas({
-      catalogName: this.credentials.catalog
-    }).then(this.handleOperation);
+    let result;
+    if (session instanceof SqlClient) {
+      result = await session.query(`show schemas`);
+    } else {
+      result = await session.getSchemas({
+        catalogName: this.credentials.catalog
+      }).then(this.handleOperation);
+    }    
 
     return result.map(item => ({
       type: ContextValue.DATABASE,
@@ -193,19 +221,24 @@ export default class DatabricksDriver extends AbstractDriver<DriverLib, DriverOp
     console.time("get tables");
     const session = await this.connection;
 
-    const operation = await session.getTables({
-      catalogName: this.credentials.catalog,
-      schemaName: database.label
-    });
-    
-    const result = await this.handleOperation(operation);  
+    let result
+    if (session instanceof SqlClient) {
+      result = await session.query(`show tables in \`${this.credentials.schema}\``);
+    } else {
+      const operation = await session.getTables({
+        catalogName: this.credentials.catalog,
+        schemaName: database.label
+      });
+      
+      result = await this.handleOperation(operation);          
+    }
     console.timeEnd("get tables");
 
     return result.map(item => ({
-      type: item.TABLE_TYPE === 'VIEW' ? ContextValue.VIEW : ContextValue.TABLE,
-      catalog: item.TABLE_CAT,
-      schema: item.TABLE_SCHEM,
-      label: item.TABLE_NAME,
+      type: ContextValue.TABLE,
+      catalog: this.credentials.catalog,
+      schema: database.label,
+      label: item.TABLE_NAME || item.tableName,
       isView: item.TABLE_TYPE === 'VIEW'
     }));
   }

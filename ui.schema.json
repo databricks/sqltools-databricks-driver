@@ -4,7 +4,8 @@
     "path",
     "token",
     "catalog",
-    "schema"
+    "schema",
+    "sql_execution_api"
   ],
   "host": {
     "ui:help": "Host name e.g. foo.cloud.databricks.com"
@@ -21,5 +22,9 @@
   },
   "schema": {
     "ui:help": "Schema to connect to. Previously known as database"
+  },
+  "sql_execution_api": {
+    "ui:help": "Use SQL execution API (preview)",
+    "ui:widget": "checkbox"
   }
 }
