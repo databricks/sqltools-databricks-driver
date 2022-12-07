@@ -5,18 +5,18 @@ on:
         branches: [main]
 
 jobs:
-    archive-build-artifacts:
+    create-build-artifacts:
+        uses: ./.github/workflows/create-build-artifacts.yml
+        secrets: inherit
+
+    create-release:
+        needs: "create-build-artifacts"
         runs-on: ubuntu-latest
+
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/download-artifact@v3
 
-            - name: Use Node.js 14.x
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 14.x
-
-            - run: yarn install
-            - run: yarn run vscode:package
+            - run: ls -lR
 
             - name: Update nightly release
               uses: eine/tip@master
@@ -24,4 +24,4 @@ jobs:
                   tag: nightly
                   rm: true
                   token: ${{ secrets.GITHUB_TOKEN }}
-                  files: "*.vsix"
+                  files: "sqltools-databricks-driver/*.vsix"
