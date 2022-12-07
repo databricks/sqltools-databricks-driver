@@ -1,14 +1,14 @@
 import {ILanguageServerPlugin} from "@sqltools/types";
-import YourDriver from "./driver";
+import {DatabricksDriver} from "./driver";
 import {DRIVER_ALIASES} from "./../constants";
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-const YourDriverPlugin: ILanguageServerPlugin = {
+const DatabricksDriverPlugin: ILanguageServerPlugin = {
     register(server) {
         DRIVER_ALIASES.forEach(({value}) => {
-            server.getContext().drivers.set(value, YourDriver as any);
+            server.getContext().drivers.set(value, DatabricksDriver as any);
         });
     },
 };
 
-export default YourDriverPlugin;
+export default DatabricksDriverPlugin;
