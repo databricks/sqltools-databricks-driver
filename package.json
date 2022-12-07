@@ -6,7 +6,7 @@
     "engines": {
         "vscode": "^1.71.0"
     },
-    "publisher": "Databricks",
+    "publisher": "databricks",
     "license": "LicenseRef-LICENSE",
     "keywords": [
         "databricks",
