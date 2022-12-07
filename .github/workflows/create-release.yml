@@ -7,17 +7,40 @@ on:
     workflow_dispatch:
 
 jobs:
+    prepare-release:
+        if: startsWith(github.event.head_commit.message, 'Release:') || github.event_name == 'workflow_dispatch'
+        runs-on: macos-latest
+        outputs:
+            version: ${{ steps.prepare.outputs.version }}
+            changelog: ${{ steps.prepare.outputs.changelog }}
+        steps:
+            - uses: actions/checkout@v3
+            - name: Extract variables
+              id: prepare
+              run: |
+                  CHANGELOG_FILE=CHANGELOG.md
+                  RELEASE_VERSION=$(cat $CHANGELOG_FILE | grep -E "^# Release: v(([0-9]+\.){2}[0-9]+).*" | head -n1 | sed -nr 's/.*Release: v(([0-9]+\.){2}[0-9]+).*/\1/p')
+                  echo "version=$RELEASE_VERSION" >> $GITHUB_OUTPUT
+
+                  CHANGELOG=$(cat $CHANGELOG_FILE | awk 'BEGIN{C=0} $0 ~ /^# Release: v.*/ && C==1{C=2} $0 ~ /^# Release: v'"$RELEASE_VERSION"'.*/{C=1} C==1 {print $0}')
+
+                  echo "changelog<<EOF" >> $GITHUB_OUTPUT
+                  echo "$CHANGELOG" >> $GITHUB_OUTPUT
+                  echo "EOF" >> $GITHUB_OUTPUT
+
     create-build-artifacts:
         if: startsWith(github.event.head_commit.message, 'Release:') || github.event_name == 'workflow_dispatch'
+        needs: ["prepare-release"]
         uses: ./.github/workflows/create-build-artifacts.yml
         secrets: inherit
+        with:
+            release_tag: release-v${{ needs.prepare-release.outputs.version }}
 
     create-release:
         if: startsWith(github.event.head_commit.message, 'Release:') || github.event_name == 'workflow_dispatch'
-        needs: ["create-build-artifacts"]
+        needs: ["prepare-release", "create-build-artifacts"]
         runs-on: macos-latest
         steps:
-            - uses: actions/checkout@v3
             - uses: actions/download-artifact@v3
               id: download
               with:
@@ -25,16 +48,16 @@ jobs:
 
             - run: ls -lr ${{ steps.download.outputs.download-path }}
 
-            - run: |
-                  CHANGELOG_FILE=CHANGELOG.md
-                  RELEASE_VERSION=$(cat $CHANGELOG_FILE | grep -E "^# Release: v(([0-9]+\.){2}[0-9]+).*" | head -n1 | sed -nr 's/.*Release: v(([0-9]+\.){2}[0-9]+).*/\1/p')
+            - name: Create Release
+              run: |
+                  RELEASE_VERSION=${{ needs.prepare-release.outputs.version }}
                   TITLE="Release: v${RELEASE_VERSION}"
 
                   tmpfile=$(mktemp /tmp/commit-message.XXXXX)
-                  cat $CHANGELOG_FILE | awk 'BEGIN{C=0} $0 ~ /^# Release: v.*/ && C==1{C=2} $0 ~ /^# Release: v'"$RELEASE_VERSION"'.*/{C=1} C==1 {print $0}' > $tmpfile
+                  echo "${{ needs.prepare-release.outputs.changelog }}" > $tmpfile
                   cat $tmpfile >> $GITHUB_STEP_SUMMARY
                   gh release create release-v$RELEASE_VERSION ${{ steps.download.outputs.download-path }}/sqltools-databricks-driver/*.vsix \
-                      -d --target main -t "$TITLE" -F $tmpfile
+                      -d --target main -t "$TITLE" -F $tmpfile --repo databricks/sqltools-databricks-driver
 
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
