@@ -45,7 +45,7 @@ jobs:
 
             - name: Bump version
               if: ${{ inputs.version != '0.0.0' }}
-              run: yarn version ${{ inputs.version }}
+              run: yarn version --new-version ${{ inputs.version }}
 
             - name: Changelog
               id: create-changelog
@@ -70,7 +70,7 @@ jobs:
                   git checkout -b $BRANCH
                   git add  CHANGELOG.md package.json
                   git status
-                  git commit -m "Changelog & version bump to ${{ inputs.version }}"
+                  git commit -m "Release: v${{ inputs.version }}"
                   git push origin HEAD
                   echo "branch_name=$BRANCH" >> $GITHUB_OUTPUT
 
