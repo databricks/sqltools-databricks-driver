@@ -1,0 +1,55 @@
+name: Publish to VS Code Marketplace
+
+on:
+    workflow_dispatch:
+        inputs:
+            version:
+                description: "Release tag"
+                required: true
+                type: string
+
+    release:
+        types: [published]
+
+jobs:
+    publish-to-vscode:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [16.x]
+
+        steps:
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - name: download release
+              run: |
+                  set x
+                  echo Version: ${{ github.event.inputs.version }}
+                  echo REF: ${{ github.ref }}
+                  TAG=${{ github.event.inputs.version }}
+                  if [[ ! -z "${{ github.event.inputs.version }}" ]]; then
+                    TAG=${{ github.event.inputs.version }}
+                  elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+                    TAG=$(echo ${{ github.ref }} | sed -e "s|^refs/tags/||")
+                  else
+                    exit 1
+                  fi
+                  echo Tag: $TAG
+                  gh release download $TAG -R databricks/sqltools-databricks-driver
+                  ls -lR
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Install vcse
+              run: npm install -g @vscode/vsce
+
+            - name: Publish to VS Code Marketplace
+              run: |
+                  vsce -V
+                  vsce publish -p ${{ secrets.VSCE_TOKEN }} --packagePath sqltools-databricks-driver-*.vsix --githubBranch main --allow-star-activation --skip-duplicate
+
+              env:
+                  VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
