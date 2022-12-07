@@ -13,9 +13,7 @@ Keyword completion (static or dynamic) is not yet implemented, neither is item s
 # Installation
 
 -   First, install the [SQLTools extension](https://marketplace.visualstudio.com/items?itemName=mtxr.sqltools) from the Visual Studio Code Marketplace.
--   Second, download and install the [extension file](https://github.com/databricks/sqltools-databricks-driver/releases/download/nightly/sqltools-databricks-driver-0.0.1.vsix) from the [nightly release](https://github.com/databricks/sqltools-databricks-driver/releases/tag/nightly)
-
-![Install Extension](/install-extension.gif)
+-   Second, install the [SQLTools Databricks Driver](https://marketplace.visualstudio.com/items?itemName=databricks.sqltools-databricks-driver) from the Visual Studio Code Marketplace.
 
 # Connecting to Databricks
 
