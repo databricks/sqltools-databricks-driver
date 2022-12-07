@@ -48,7 +48,7 @@
         "check": "tsc -p ./ --noEmit",
         "fix": "eslint src --ext ts --fix && prettier . --write",
         "test:lint": "eslint src --ext ts && prettier . -c",
-        "test:unit": "true",
+        "test:unit": "ts-mocha 'src/**/*_test.ts'",
         "test": "yarn run test:lint && yarn run test:unit",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./"
@@ -70,6 +70,7 @@
     },
     "devDependencies": {
         "@babel/preset-env": "^7.5.5",
+        "@types/mocha": "^10.0.1",
         "@types/node": "^14.0.9",
         "@types/uuid": "^8.3.4",
         "@types/vscode": "^1.71.0",
@@ -80,7 +81,10 @@
         "eslint": "^8.29.0",
         "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-no-only-tests": "^3.1.0",
+        "mocha": "^10.1.0",
         "prettier": "^2.8.0",
+        "ts-mocha": "^10.0.0",
+        "ts-mockito": "^2.6.1",
         "typescript": "^4.9.3"
     }
 }

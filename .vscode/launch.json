@@ -23,6 +23,14 @@
             "timeout": 15000,
             "outFiles": ["${workspaceFolder}/out/**/*.js"],
             "skipFiles": ["<node_internals>/**"]
+        },
+        {
+            "name": "Unit tests",
+            "request": "launch",
+            "runtimeArgs": ["run", "test:unit"],
+            "runtimeExecutable": "npm",
+            "outFiles": ["${workspaceFolder}/**/*.js", "!**/node_modules/**"],
+            "type": "node"
         }
     ],
     "compounds": [

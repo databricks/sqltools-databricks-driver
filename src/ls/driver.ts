@@ -23,8 +23,15 @@ export class DatabricksDriver
     implements IConnectionDriver
 {
     queries = queries;
-    private catalog?: string;
-    private schema?: string;
+    private _catalog: string;
+    public get catalog() {
+        return this._catalog;
+    }
+
+    private _schema?: string;
+    public get schema() {
+        return this._schema;
+    }
 
     public async open() {
         if (this.connection) {
@@ -37,8 +44,8 @@ export class DatabricksDriver
             token: this.credentials.token,
         };
 
-        this.catalog = this.credentials.catalog || "hive_metastore";
-        this.schema = this.credentials.schema;
+        this._catalog = this.credentials.catalog || "hive_metastore";
+        this._schema = this.credentials.schema;
 
         this.connection = this.openSession(connectionOptions);
 
@@ -49,7 +56,7 @@ export class DatabricksDriver
         host: string;
         path: string;
         token: string;
-    }) {
+    }): Promise<IDBSQLSession> {
         const client = new DBSQLClient({});
 
         const connection = await client.connect(connectionOptions);
@@ -132,20 +139,6 @@ export class DatabricksDriver
                     results: queryResults,
                 },
             ];
-
-            // queryResults.forEach(queryResult => {
-            //   resultsAgg.push({
-            //     requestId: opt.requestId,
-            //     resultId: generateId(),
-            //     connId: this.getId(),
-            //     cols: Object.keys(queryResult),
-            //     messages: [{ date: new Date(), message: `Query ok with ${queryResults.length} results` }],
-            //     query: query.toString(),
-            //     results: queryResult
-            //   });
-            // });
-
-            //return resultsAgg;
         } catch (error) {
             return [
                 <NSDatabase.IResult>{
@@ -176,7 +169,7 @@ export class DatabricksDriver
         const session = await this.connection;
 
         const operation = await session.getColumns({
-            catalogName: this.catalog,
+            catalogName: this._catalog,
             schemaName: parent.schema,
             tableName: parent.label,
         });
@@ -202,7 +195,7 @@ export class DatabricksDriver
     private async getDatabases(): Promise<NSDatabase.IDatabase[]> {
         const session = await this.connection;
         const operation = await session.getSchemas({
-            catalogName: this.catalog,
+            catalogName: this._catalog,
         });
         const result = await this.handleOperation(operation);
 
@@ -222,7 +215,7 @@ export class DatabricksDriver
         const session = await this.connection;
 
         const operation = await session.getTables({
-            catalogName: this.credentials.catalog,
+            catalogName: this._catalog,
             schemaName: database.label,
         });
 
@@ -231,7 +224,7 @@ export class DatabricksDriver
 
         return result.map((item: any) => ({
             type: ContextValue.TABLE,
-            catalog: this.credentials.catalog,
+            catalog: this._catalog,
             schema: database.label,
             label: item.TABLE_NAME || item.tableName,
             isView: item.TABLE_TYPE === "VIEW",
@@ -261,11 +254,11 @@ export class DatabricksDriver
         switch (item.type) {
             case ContextValue.CONNECTION:
             case ContextValue.CONNECTED_CONNECTION:
-                if (this.schema) {
+                if (this._schema) {
                     return <NSDatabase.IDatabase[]>[
                         {
-                            label: this.schema,
-                            database: this.schema,
+                            label: this._schema,
+                            database: this._schema,
                             type: ContextValue.DATABASE,
                             detail: "database",
                         },
@@ -348,7 +341,7 @@ export class DatabricksDriver
             return [];
         }
 
-        schema = schema || this.schema;
+        schema = schema || this._schema;
         if (!schema) {
             return [];
         }
@@ -377,7 +370,7 @@ export class DatabricksDriver
         const session = await this.connection;
         try {
             const operation = await session.getSchemas({
-                catalogName: this.catalog,
+                catalogName: this._catalog,
                 schemaName: `%${search}*`,
             });
             const result = await this.handleOperation(operation);
