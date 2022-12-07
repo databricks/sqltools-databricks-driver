@@ -4,6 +4,7 @@ node_modules/
 .vscode-test/**
 out/test/**
 src/**
+scripts/
 .gitignore
 **/tsconfig.json
 **/.eslintrc.json

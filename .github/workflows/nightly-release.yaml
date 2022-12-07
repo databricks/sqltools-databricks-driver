@@ -5,23 +5,32 @@ on:
         branches: [main]
 
 jobs:
-    archive-build-artifacts:
+    create-build-artifacts:
+        uses: ./.github/workflows/create-build-artifacts.yml
+        secrets: inherit
+
+    create-release:
+        needs: "create-build-artifacts"
         runs-on: ubuntu-latest
+
         steps:
-            - uses: actions/checkout@v3
-
-            - name: Use Node.js 14.x
-              uses: actions/setup-node@v3
+            - uses: actions/download-artifact@v3
               with:
-                  node-version: 14.x
+                  path: packages/databricks-vscode
 
-            - run: yarn install
-            - run: yarn run vscode:package
+            - run: ls -lR packages/databricks-vscode
 
             - name: Update nightly release
-              uses: eine/tip@master
+              uses: pyTooling/Actions/releaser@r0
+              if: startsWith(github.ref, 'refs/heads/')
               with:
                   tag: nightly
                   rm: true
                   token: ${{ secrets.GITHUB_TOKEN }}
                   files: "*.vsix"
+
+            - name: Release
+              uses: softprops/action-gh-release@v1
+              if: startsWith(github.ref, 'refs/tags/')
+              with:
+                  files: "packages/databricks-vscode/*.vsix"
