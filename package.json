@@ -1,6 +1,6 @@
 {
     "name": "sqltools-databricks-driver",
-    "displayName": "Databricks SQLTools",
+    "displayName": "Databricks",
     "description": "Databricks SQL driver for SQLTools",
     "version": "0.1.0",
     "engines": {
@@ -11,6 +11,7 @@
     "keywords": [
         "databricks",
         "databricks sql",
+        "dbsql",
         "sqltools-driver",
         "databricks",
         "machine learning",
@@ -43,12 +44,13 @@
         "vscode:package": "vsce package --yarn --allow-star-activation --githubBranch ${RELEASE_TAG:-main}",
         "build": "rm -rf out && yarn run compile:ext && yarn run compile:ls",
         "esbuild": "esbuild --platform=node --tsconfig=./tsconfig.json --external:vscode --log-level=error --color=true --format=cjs",
-        "compile:ext": "yarn run esbuild --bundle ./src/extension.ts --outfile=./out/src/extension.js --target=es2017 --define:process.env.PRODUCT=\"'ext'\"",
-        "compile:ls": "yarn run esbuild --bundle ./src/ls/plugin.ts --outfile=./out/src/ls/plugin.js --target=es2015 --define:process.env.PRODUCT=\"'ls'\"",
+        "compile:ext": "yarn run esbuild --bundle ./src/extension.ts --outfile=./out/extension.js --target=es2017 --define:process.env.PRODUCT=\"'ext'\"",
+        "compile:ls": "yarn run esbuild --bundle ./src/ls/plugin.ts --outfile=./out/ls/plugin.js --target=es2015 --define:process.env.PRODUCT=\"'ls'\"",
         "check": "tsc -p ./ --noEmit",
         "fix": "eslint src --ext ts --fix && prettier . --write",
         "test:lint": "eslint src --ext ts && prettier . -c",
         "test:unit": "ts-mocha 'src/**/*_test.ts'",
+        "test:integ": "ts-mocha 'src/**/*_integ.ts'",
         "test": "yarn run test:lint && yarn run test:unit",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./"
@@ -61,7 +63,7 @@
         "onLanguage:sql",
         "onCommand:sqltools.*"
     ],
-    "main": "./out/src/extension.js",
+    "main": "./out/extension.js",
     "dependencies": {
         "@databricks/sql": "^1.0.0",
         "@sqltools/base-driver": "latest",

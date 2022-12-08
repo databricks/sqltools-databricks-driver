@@ -1,7 +1,7 @@
-import {DatabricksDriver} from "./driver";
+import {DatabricksDriver, DriverOptions} from "./driver";
 import {WorkspaceFolder} from "vscode-languageserver-protocol";
 import {IConnection} from "@sqltools/types";
-import {instance, spy, anything, when} from "ts-mockito";
+import {instance} from "ts-mockito";
 import {Mocker} from "ts-mockito/lib/Mock";
 import * as assert from "assert";
 import {DBSQLSession} from "@databricks/sql";
@@ -17,7 +17,7 @@ function mock<T>(
 }
 
 describe(__filename, () => {
-    let credentials: IConnection<any>;
+    let credentials: IConnection<DriverOptions>;
     const getWorkspaceFolders = function (): Promise<WorkspaceFolder[] | null> {
         return Promise.resolve([
             {
@@ -56,12 +56,11 @@ describe(__filename, () => {
 
     it("should opne a session", async () => {
         const driver = new DatabricksDriver(credentials, getWorkspaceFolders);
-        const spiedDriver = spy(driver);
 
         const dbsqlSessionMock = mock<DBSQLSession>();
-        when(spiedDriver.openSession(anything())).thenResolve(
-            instance(dbsqlSessionMock)
-        );
+        (driver as any).openSession = async () => {
+            return instance(dbsqlSessionMock);
+        };
 
         const session = await driver.open();
         assert.ok(session);

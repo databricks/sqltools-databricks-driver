@@ -16,8 +16,9 @@
         "skipLibCheck": true,
         "declaration": false,
         "target": "esnext",
-        "outDir": "out"
+        "outDir": "out",
+        "rootDir": "src"
     },
-    "include": ["src/**/*", "experiments/test.ts"],
+    "include": ["src/**/*"],
     "exclude": ["node_modules"]
 }

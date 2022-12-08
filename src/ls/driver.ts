@@ -12,11 +12,16 @@ import {
 import {v4 as generateId} from "uuid";
 
 import {DBSQLClient} from "@databricks/sql";
-import IOperation from "@databricks/sql/dist/contracts/IOperation";
-import IDBSQLSession from "@databricks/sql/dist/contracts/IDBSQLSession";
+import {DatabricksSession} from "./DatabricksSession";
 
-type DriverLib = IDBSQLSession;
-type DriverOptions = any;
+type DriverLib = DatabricksSession;
+export interface DriverOptions {
+    host: string;
+    path: string;
+    token: string;
+    catalog?: string;
+    schema?: string;
+}
 
 export class DatabricksDriver
     extends AbstractDriver<DriverLib, DriverOptions>
@@ -48,7 +53,6 @@ export class DatabricksDriver
         this._schema = this.credentials.schema;
 
         this.connection = this.openSession(connectionOptions);
-
         return this.connection;
     }
 
@@ -56,28 +60,13 @@ export class DatabricksDriver
         host: string;
         path: string;
         token: string;
-    }): Promise<IDBSQLSession> {
+    }): Promise<DatabricksSession> {
         const client = new DBSQLClient({});
 
         const connection = await client.connect(connectionOptions);
-        const session = await connection.openSession();
+        const session = new DatabricksSession(await connection.openSession());
 
         return session;
-    }
-
-    private async handleOperation(operation: IOperation): Promise<any> {
-        const result = await operation.fetchAll();
-        await operation.close();
-
-        return result;
-    }
-
-    private async execute(session: DriverLib, statement: string): Promise<any> {
-        const operation = await session.executeStatement(statement, {
-            runAsync: true,
-        });
-
-        return this.handleOperation(operation);
     }
 
     public async close() {
@@ -114,7 +103,7 @@ export class DatabricksDriver
         const session = await this.connection;
 
         try {
-            const queryResults = await this.execute(session, query);
+            const queryResults = await session.execute(query);
 
             const cols = [];
             if (queryResults && queryResults.length > 0) {
@@ -157,7 +146,6 @@ export class DatabricksDriver
     };
 
     public async testConnection() {
-        console.log("TESTING!!!!!!!!!!!!!");
         await this.open();
         await this.query("SELECT 1", {});
     }
@@ -168,24 +156,23 @@ export class DatabricksDriver
         console.time("get columns");
         const session = await this.connection;
 
-        const operation = await session.getColumns({
-            catalogName: this._catalog,
-            schemaName: parent.schema,
-            tableName: parent.label,
-        });
+        const columns = await session.getColumns(
+            this._catalog,
+            parent.schema,
+            parent.label
+        );
 
-        const result = await this.handleOperation(operation);
         console.timeEnd("get columns");
 
-        return <NSDatabase.IColumn[]>result.map((col: any) => ({
+        return <NSDatabase.IColumn[]>columns.map((col) => ({
             type: ContextValue.COLUMN,
             schema: parent.schema,
             database: parent.database,
             childType: ContextValue.NO_CHILD,
             dataType: col.TYPE_NAME,
-            isNullable: col.NULLABLE === 1,
+            isNullable: col.IS_NULLABLE === "YES",
             table: parent,
-            label: col.COLUMN_NAME || col.col_name,
+            label: col.COLUMN_NAME,
             isPk: false,
             isFk: false,
             iconName: "column",
@@ -194,16 +181,13 @@ export class DatabricksDriver
 
     private async getDatabases(): Promise<NSDatabase.IDatabase[]> {
         const session = await this.connection;
-        const operation = await session.getSchemas({
-            catalogName: this._catalog,
-        });
-        const result = await this.handleOperation(operation);
+        const schemas = await session.getSchemas(this._catalog);
 
-        return result.map((item: any) => ({
+        return schemas.map((item) => ({
             type: ContextValue.DATABASE,
             label: item.TABLE_SCHEM,
             schema: item.TABLE_SCHEM,
-            database: item.TABLE_SCHEM,
+            database: item.TABLE_CATALOG,
             iconId: "database",
         }));
     }
@@ -214,19 +198,15 @@ export class DatabricksDriver
         console.time("get tables");
         const session = await this.connection;
 
-        const operation = await session.getTables({
-            catalogName: this._catalog,
-            schemaName: database.label,
-        });
+        const tables = await session.getTables(this._catalog, database.label);
 
-        const result = await this.handleOperation(operation);
         console.timeEnd("get tables");
 
-        return result.map((item: any) => ({
+        return tables.map((item) => ({
             type: ContextValue.TABLE,
-            catalog: this._catalog,
-            schema: database.label,
-            label: item.TABLE_NAME || item.tableName,
+            database: item.TABLE_CAT,
+            schema: item.TABLE_SCHEM,
+            label: item.TABLE_NAME,
             isView: item.TABLE_TYPE === "VIEW",
         }));
     }
@@ -235,7 +215,6 @@ export class DatabricksDriver
         parent: NSDatabase.IDatabase
     ): Promise<NSDatabase.ITable[]> {
         const tablesAndViews = await this.getTablesAndViews(parent);
-
         return tablesAndViews.filter((r) => !r.isView);
     }
 
@@ -243,7 +222,6 @@ export class DatabricksDriver
         parent: NSDatabase.IDatabase
     ): Promise<NSDatabase.ITable[]> {
         const tablesAndViews = await this.getTablesAndViews(parent);
-
         return tablesAndViews.filter((r) => r.isView);
     }
 
@@ -258,7 +236,8 @@ export class DatabricksDriver
                     return <NSDatabase.IDatabase[]>[
                         {
                             label: this._schema,
-                            database: this._schema,
+                            schema: this._schema,
+                            database: this._catalog,
                             type: ContextValue.DATABASE,
                             detail: "database",
                         },
@@ -289,19 +268,6 @@ export class DatabricksDriver
         }
         return [];
     }
-
-    // private async getCatalogs() {
-    //   const session = await this.connection;
-    //   const catalogs = await this.handleOperation(await session.getCatalogs());
-
-    //   console.log("Catalogs", catalogs);
-    //   return catalogs.map(item => ({
-    //     type: ContextValue.DATABASE,
-    //     catalog: item.TABLE_CAT,
-    //     label: item.TABLE_CAT,
-    //     isView: false
-    //   }));
-    // }
 
     private async getChildrenForGroup({
         parent,
@@ -335,8 +301,10 @@ export class DatabricksDriver
         return [];
     }
 
-    // TODO: Implement caching
-    private async findTables(search: string, schema?: string) {
+    private async findTables(
+        search: string,
+        schema?: string
+    ): Promise<NSDatabase.ITable[]> {
         if (search === "" || !schema) {
             return [];
         }
@@ -348,13 +316,18 @@ export class DatabricksDriver
 
         const session = await this.connection;
         try {
-            const statement = `SHOW TABLES FROM \`${schema}\` like "${search}*"`;
-            const result = await this.execute(session, statement);
+            const tables = await session.getTables(
+                this._catalog,
+                schema,
+                `${search}*`
+            );
 
-            return result.map((item: any) => ({
+            return tables.map((item) => ({
                 type: ContextValue.TABLE,
-                label: item.tableName,
-                database: item.database,
+                label: item.TABLE_NAME,
+                schema: item.TABLE_SCHEM,
+                database: item.TABLE_CAT,
+                isView: item.TABLE_TYPE === "VIEW",
             }));
         } catch (e) {
             console.error(e);
@@ -362,24 +335,25 @@ export class DatabricksDriver
         }
     }
 
-    private async findDatabases(search: string) {
+    private async findDatabases(
+        search: string
+    ): Promise<NSDatabase.IDatabase[]> {
         if (!search) {
             return [];
         }
 
         const session = await this.connection;
         try {
-            const operation = await session.getSchemas({
-                catalogName: this._catalog,
-                schemaName: `%${search}*`,
-            });
-            const result = await this.handleOperation(operation);
+            const schemas = await session.getSchemas(
+                this._catalog,
+                `%${search}*`
+            );
 
-            return result.map((item: any) => ({
+            return schemas.map((item) => ({
                 type: ContextValue.DATABASE,
                 label: item.TABLE_SCHEM,
                 schema: item.TABLE_SCHEM,
-                database: item.TABLE_SCHEM,
+                database: item.TABLE_CATALOG,
                 iconId: "database",
             }));
         } catch (e) {

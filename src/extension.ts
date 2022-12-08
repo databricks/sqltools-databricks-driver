@@ -6,7 +6,9 @@ import {
 } from "@sqltools/types";
 import {ExtensionContext} from "vscode";
 import {DRIVER_ALIASES} from "./constants";
-import {publisher, name, displayName} from "../package.json";
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const {publisher, name, displayName} = require("../package.json");
 
 export async function activate(
     extContext: ExtensionContext
@@ -58,7 +60,7 @@ export async function activate(
                     );
             });
             await extension.client.sendRequest("ls/RegisterPlugin", {
-                path: extContext.asAbsolutePath("out/src/ls/plugin.js"),
+                path: extContext.asAbsolutePath("out/ls/plugin.js"),
             });
         },
     };
