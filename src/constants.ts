@@ -1,5 +1,6 @@
 import {IDriverAlias} from "@sqltools/types";
-import {displayName} from "../package.json";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const {displayName} = require("../package.json");
 
 /**
  * Aliases for yout driver. EG: PostgreSQL, PG, postgres can all resolve to your driver
