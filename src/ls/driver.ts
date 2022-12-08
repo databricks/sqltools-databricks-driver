@@ -13,6 +13,7 @@ import {v4 as generateId} from "uuid";
 
 import {DBSQLClient} from "@databricks/sql";
 import {DatabricksSession} from "./DatabricksSession";
+import IDBSQLSession from "@databricks/sql/dist/contracts/IDBSQLSession";
 
 export interface DriverOptions {
     host: string;
@@ -66,10 +67,36 @@ export class DatabricksDriver implements IConnectionDriver {
     }): Promise<DatabricksSession> {
         const client = new DBSQLClient({});
 
-        const connection = await client.connect(connectionOptions);
-        const session = new DatabricksSession(await connection.openSession());
+        let errorListener;
+        let session: IDBSQLSession;
 
-        return session;
+        // error handling is very cumbersome because the error is emitted after the
+        // connect promise is resolved.
+        try {
+            session = await Promise.race([
+                new Promise<IDBSQLSession>((_, reject) => {
+                    errorListener = (error: any) => {
+                        reject(error);
+                    };
+                    client.on("error", errorListener);
+                }),
+                (async function (): Promise<IDBSQLSession> {
+                    const connection = await client.connect(connectionOptions);
+                    return connection.openSession();
+                })(),
+            ]);
+        } catch (e: any) {
+            if (e.statusCode === 403) {
+                throw new Error(
+                    "Invalid token. Please check your token and try again."
+                );
+            } else {
+                throw e;
+            }
+        } finally {
+            errorListener && client.removeListener("error", errorListener);
+        }
+        return new DatabricksSession(session);
     }
 
     public async close() {

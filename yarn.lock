@@ -50,7 +50,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@databricks/sql@npm:^1.0.0":
+"@databricks/sql@npm:1.0.0":
   version: 1.0.0
   resolution: "@databricks/sql@npm:1.0.0"
   dependencies:
@@ -60,6 +60,19 @@ __metadata:
     uuid: ^9.0.0
     winston: ^3.8.2
   checksum: 94ecb783d440edcfaf7da6f383b7d7c0b473cf21d02f8234ac2add51f44c202dd17e05616edfa827c61ff79d9df742bd96cddefff79caf93adf2a99646736465
+  languageName: node
+  linkType: hard
+
+"@databricks/sql@patch:@databricks/sql@npm%3A1.0.0#./.yarn/patches/@databricks-sql-npm-1.0.0-095de63363.patch::locator=sqltools-databricks-driver%40workspace%3A.":
+  version: 1.0.0
+  resolution: "@databricks/sql@patch:@databricks/sql@npm%3A1.0.0#./.yarn/patches/@databricks-sql-npm-1.0.0-095de63363.patch::version=1.0.0&hash=6af4dc&locator=sqltools-databricks-driver%40workspace%3A."
+  dependencies:
+    commander: ^9.3.0
+    node-int64: ^0.4.0
+    thrift: ^0.16.0
+    uuid: ^9.0.0
+    winston: ^3.8.2
+  checksum: 259031209483968c7a0bde128bde184f90a5bb21fef752c1c07d6233bd7bb282d9c6e016e07d42cb28f1edff596a577437194933a56e1e6de05e9bcc4442243d
   languageName: node
   linkType: hard
 
