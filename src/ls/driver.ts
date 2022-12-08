@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 import AbstractDriver from "@sqltools/base-driver";
-import queries from "./queries";
 import {
     IConnectionDriver,
     MConnectionExplorer,
@@ -8,13 +7,13 @@ import {
     ContextValue,
     Arg0,
     IQueryOptions,
+    IConnection,
 } from "@sqltools/types";
 import {v4 as generateId} from "uuid";
 
 import {DBSQLClient} from "@databricks/sql";
 import {DatabricksSession} from "./DatabricksSession";
 
-type DriverLib = DatabricksSession;
 export interface DriverOptions {
     host: string;
     path: string;
@@ -23,17 +22,21 @@ export interface DriverOptions {
     schema?: string;
 }
 
-export class DatabricksDriver
-    extends AbstractDriver<DriverLib, DriverOptions>
-    implements IConnectionDriver
-{
-    queries = queries;
+export class DatabricksDriver implements IConnectionDriver {
+    connection: Promise<DatabricksSession>;
     private _catalog: string;
+    private _schema?: string;
+
+    constructor(public credentials: IConnection<DriverOptions>) {}
+
+    public getId() {
+        return this.credentials.id;
+    }
+
     public get catalog() {
         return this._catalog;
     }
 
-    private _schema?: string;
     public get schema() {
         return this._schema;
     }
@@ -79,6 +82,21 @@ export class DatabricksDriver
         (this.connection as any) = null;
     }
 
+    async checkDependencies(): Promise<void> {}
+
+    async describeTable(
+        table: NSDatabase.ITable,
+        opt?: IQueryOptions
+    ): Promise<NSDatabase.IResult<any>[]> {
+        console.time("describe table");
+        await this.query(`use ${table.database}`, opt);
+        const query = `describe \`${table.schema}\`.\`${table.label}\``;
+        const queryResults = await this.query(query, opt);
+        console.timeEnd("describe table");
+
+        return queryResults;
+    }
+
     async showRecords(
         table: NSDatabase.ITable,
         opt: IQueryOptions & {
@@ -88,7 +106,8 @@ export class DatabricksDriver
     ): Promise<NSDatabase.IResult<any>[]> {
         console.time("show records");
 
-        const query = `select * from \`${table.label}\` limit ${opt.limit}`;
+        await this.query(`use ${table.database}`, opt);
+        const query = `select * from \`${table.schema}\`.\`${table.label}\` limit ${opt.limit}`;
         const queryResults = await this.query(query, opt);
 
         console.timeEnd("show records");

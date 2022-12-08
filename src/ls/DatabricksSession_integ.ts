@@ -17,7 +17,7 @@ import {DatabricksSession} from "./DatabricksSession";
 describe(__filename, () => {
     let session: DatabricksSession;
 
-    const CATALG = "hive_metastore";
+    const CATALOG = "hive_metastore";
     const SCHEMA = "default";
     const TABLE = "russia_losses";
 
@@ -56,7 +56,7 @@ describe(__filename, () => {
     });
 
     it("should get columns", async () => {
-        const result = await session.getColumns(CATALG, SCHEMA, TABLE);
+        const result = await session.getColumns(CATALOG, SCHEMA, TABLE);
         // console.log(result);
         assert.ok(result.length > 0);
 
@@ -76,7 +76,7 @@ describe(__filename, () => {
     });
 
     it("should get tables", async () => {
-        const result = await session.getTables(CATALG, SCHEMA);
+        const result = await session.getTables(CATALOG, SCHEMA);
         // console.log(result);
         assert.ok(result.length > 0);
 
@@ -90,7 +90,7 @@ describe(__filename, () => {
     });
 
     it.skip("should find tables by prefix", async () => {
-        const result = await session.getTables(CATALG, SCHEMA, "russ*");
+        const result = await session.getTables(CATALOG, SCHEMA, "russ*");
         // console.log(result);
         assert.ok(result.length > 0);
     });

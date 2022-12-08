@@ -1,5 +1,4 @@
 import {DatabricksDriver, DriverOptions} from "./driver";
-import {WorkspaceFolder} from "vscode-languageserver-protocol";
 import {IConnection} from "@sqltools/types";
 import {instance} from "ts-mockito";
 import {Mocker} from "ts-mockito/lib/Mock";
@@ -18,14 +17,6 @@ function mock<T>(
 
 describe(__filename, () => {
     let credentials: IConnection<DriverOptions>;
-    const getWorkspaceFolders = function (): Promise<WorkspaceFolder[] | null> {
-        return Promise.resolve([
-            {
-                uri: "/Workspaces",
-                name: "Workspace",
-            },
-        ]);
-    };
 
     beforeEach(() => {
         credentials = {
@@ -45,7 +36,7 @@ describe(__filename, () => {
     });
 
     it("should instantiate the driver", () => {
-        const driver = new DatabricksDriver(credentials, getWorkspaceFolders);
+        const driver = new DatabricksDriver(credentials);
 
         assert.strictEqual(driver.credentials.host, credentials.host);
         assert.strictEqual(driver.credentials.path, credentials.path);
@@ -55,7 +46,7 @@ describe(__filename, () => {
     });
 
     it("should opne a session", async () => {
-        const driver = new DatabricksDriver(credentials, getWorkspaceFolders);
+        const driver = new DatabricksDriver(credentials);
 
         const dbsqlSessionMock = mock<DBSQLSession>();
         (driver as any).openSession = async () => {
