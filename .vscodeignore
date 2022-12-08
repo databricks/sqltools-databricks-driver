@@ -10,3 +10,7 @@ scripts/
 **/.eslintrc.json
 **/*.map
 **/*.ts
+*.gif
+connection-form.png
+create-new-connection.png
+tmp/
