@@ -150,28 +150,31 @@ export class DatabricksDriver
         await this.query("SELECT 1", {});
     }
 
-    private async getColumns(
-        parent: NSDatabase.ITable
-    ): Promise<NSDatabase.IColumn[]> {
+    private async getColumns(table: {
+        label: string;
+        database?: string;
+        schema?: string;
+    }): Promise<NSDatabase.IColumn[]> {
         console.time("get columns");
         const session = await this.connection;
 
+        const schema = table.schema || this._schema;
         const columns = await session.getColumns(
             this._catalog,
-            parent.schema,
-            parent.label
+            schema,
+            table.label
         );
 
         console.timeEnd("get columns");
 
         return <NSDatabase.IColumn[]>columns.map((col) => ({
             type: ContextValue.COLUMN,
-            schema: parent.schema,
-            database: parent.database,
+            schema: schema,
+            database: table.database,
             childType: ContextValue.NO_CHILD,
             dataType: col.TYPE_NAME,
             isNullable: col.IS_NULLABLE === "YES",
-            table: parent,
+            table: table,
             label: col.COLUMN_NAME,
             isPk: false,
             isFk: false,
@@ -197,9 +200,7 @@ export class DatabricksDriver
     ): Promise<NSDatabase.ITable[]> {
         console.time("get tables");
         const session = await this.connection;
-
         const tables = await session.getTables(this._catalog, database.label);
-
         console.timeEnd("get tables");
 
         return tables.map((item) => ({
@@ -285,16 +286,16 @@ export class DatabricksDriver
     public async searchItems(
         itemType: ContextValue,
         search: string,
-        _extraParams: any = {}
+        extraParams: any = {}
     ): Promise<NSDatabase.SearchableItem[]> {
-        console.log("searchItems", itemType, search, _extraParams);
-        const database = _extraParams.database;
+        console.log("searchItems", itemType, search, extraParams);
+        const database = extraParams.database;
         switch (itemType) {
             case ContextValue.TABLE:
             case ContextValue.VIEW:
                 return await this.findTables(search, database);
             case ContextValue.COLUMN:
-                return await this.getColumns(_extraParams.tables[0]);
+                return await this.getColumns(extraParams.tables[0]);
             case ContextValue.DATABASE:
                 return await this.findDatabases(search);
         }
@@ -305,7 +306,7 @@ export class DatabricksDriver
         search: string,
         schema?: string
     ): Promise<NSDatabase.ITable[]> {
-        if (search === "" || !schema) {
+        if (search === "") {
             return [];
         }
 
