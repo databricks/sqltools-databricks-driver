@@ -4,3 +4,4 @@ out/
 *.vsix
 experiments/
 yarn-error.log
+.yarn/cache/
