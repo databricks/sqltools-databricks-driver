@@ -1,0 +1,22 @@
+diff --git a/dist/DBSQLClient.js b/dist/DBSQLClient.js
+index 6da44d218be1fe9781340a234f91cd2d650a2b1d..9fe5f8186a5f714e8ca45be0d1b618cce768675d 100644
+--- a/dist/DBSQLClient.js
++++ b/dist/DBSQLClient.js
+@@ -89,8 +89,15 @@ class DBSQLClient extends events_1.EventEmitter {
+             this.connection = yield this.connectionProvider.connect(this.getConnectionOptions(options), this.authProvider);
+             this.client = this.thrift.createClient(TCLIService_1.default, this.connection.getConnection());
+             this.connection.getConnection().on('error', (error) => {
+-                this.logger.log(IDBSQLLogger_1.LogLevel.error, JSON.stringify(error));
+-                this.emit('error', error);
++                // Error.stack already contains error type and message, so log stack if available,
++                // otherwise fall back to just error type + message
++                this.logger.log(IDBSQLLogger_1.LogLevel.error, error.stack || `${error.name}: ${error.message}`);
++                try {
++                    this.emit('error', error);
++                } catch (e) {
++                    // EventEmitter will throw unhandled error when emitting 'error' event.
++                    // Since we already logged it few lines above, just suppress this behaviour
++                }
+             });
+             this.connection.getConnection().on('reconnecting', (params) => {
+                 this.logger.log(IDBSQLLogger_1.LogLevel.debug, `Reconnecting, params: ${JSON.stringify(params)}`);
