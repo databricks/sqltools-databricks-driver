@@ -1,11 +1,9 @@
 /* eslint-disable no-console */
-import AbstractDriver from "@sqltools/base-driver";
 import {
     IConnectionDriver,
     MConnectionExplorer,
     NSDatabase,
     ContextValue,
-    Arg0,
     IQueryOptions,
     IConnection,
 } from "@sqltools/types";
@@ -19,16 +17,20 @@ export interface DriverOptions {
     host: string;
     path: string;
     token: string;
-    catalog?: string;
+    catalog: string;
     schema?: string;
 }
 
 export class DatabricksDriver implements IConnectionDriver {
-    connection: Promise<DatabricksSession>;
+    // connection will be initialized in open method
+    connection!: Promise<DatabricksSession>;
     private _catalog: string;
     private _schema?: string;
 
-    constructor(public credentials: IConnection<DriverOptions>) {}
+    constructor(public credentials: IConnection<DriverOptions>) {
+        this._catalog = credentials.catalog;
+        this._schema = credentials.schema;
+    }
 
     public getId() {
         return this.credentials.id;
@@ -52,9 +54,6 @@ export class DatabricksDriver implements IConnectionDriver {
             path: this.credentials.path,
             token: this.credentials.token,
         };
-
-        this._catalog = this.credentials.catalog || "hive_metastore";
-        this._schema = this.credentials.schema;
 
         this.connection = this.openSession(connectionOptions);
         return this.connection;
@@ -113,7 +112,7 @@ export class DatabricksDriver implements IConnectionDriver {
 
     async describeTable(
         table: NSDatabase.ITable,
-        opt?: IQueryOptions
+        opt: IQueryOptions
     ): Promise<NSDatabase.IResult<any>[]> {
         console.time("describe table");
         await this.query(`use ${table.database}`, opt);
@@ -142,10 +141,10 @@ export class DatabricksDriver implements IConnectionDriver {
         return queryResults;
     }
 
-    public query: typeof AbstractDriver["prototype"]["query"] = async (
+    public async query(
         query: string,
-        opt = {}
-    ) => {
+        opt: IQueryOptions = {}
+    ): Promise<NSDatabase.IResult[]> {
         const session = await this.connection;
 
         try {
@@ -189,7 +188,7 @@ export class DatabricksDriver implements IConnectionDriver {
                 },
             ];
         }
-    };
+    }
 
     public async testConnection() {
         await this.open();
@@ -198,13 +197,17 @@ export class DatabricksDriver implements IConnectionDriver {
 
     private async getColumns(table: {
         label: string;
-        database?: string;
+        database: string;
         schema?: string;
     }): Promise<NSDatabase.IColumn[]> {
         console.time("get columns");
         const session = await this.connection;
 
         const schema = table.schema || this._schema;
+        if (!schema) {
+            return [];
+        }
+
         const columns = await session.getColumns(
             this._catalog,
             schema,
@@ -272,11 +275,11 @@ export class DatabricksDriver implements IConnectionDriver {
         return tablesAndViews.filter((r) => r.isView);
     }
 
-    public async getChildrenForItem({
-        item,
-        parent,
-    }: Arg0<IConnectionDriver["getChildrenForItem"]>) {
-        switch (item.type) {
+    public async getChildrenForItem(params: {
+        item: NSDatabase.SearchableItem;
+        parent?: NSDatabase.SearchableItem;
+    }): Promise<MConnectionExplorer.IChildItem[]> {
+        switch (params.item.type) {
             case ContextValue.CONNECTION:
             case ContextValue.CONNECTED_CONNECTION:
                 if (this._schema) {
@@ -309,22 +312,22 @@ export class DatabricksDriver implements IConnectionDriver {
                 ];
             case ContextValue.TABLE:
             case ContextValue.VIEW:
-                return this.getColumns(item as NSDatabase.ITable);
+                return this.getColumns(params.item as NSDatabase.ITable);
             case ContextValue.RESOURCE_GROUP:
-                return this.getChildrenForGroup({item, parent});
+                return this.getChildrenForGroup(params);
         }
         return [];
     }
 
-    private async getChildrenForGroup({
-        parent,
-        item,
-    }: Arg0<IConnectionDriver["getChildrenForItem"]>) {
-        switch (item.childType) {
+    private async getChildrenForGroup(params: {
+        item: NSDatabase.SearchableItem;
+        parent?: NSDatabase.SearchableItem;
+    }) {
+        switch (params.item.childType) {
             case ContextValue.TABLE:
-                return this.getTables(parent as NSDatabase.IDatabase);
+                return this.getTables(params.parent as NSDatabase.IDatabase);
             case ContextValue.VIEW:
-                return this.getViews(parent as NSDatabase.IDatabase);
+                return this.getViews(params.parent as NSDatabase.IDatabase);
         }
         return [];
     }
@@ -409,8 +412,9 @@ export class DatabricksDriver implements IConnectionDriver {
         }
     }
 
-    public getStaticCompletions: IConnectionDriver["getStaticCompletions"] =
-        async () => {
-            return {};
-        };
+    public async getStaticCompletions(): Promise<{
+        [w: string]: NSDatabase.IStaticCompletion;
+    }> {
+        return {};
+    }
 }
