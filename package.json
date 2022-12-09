@@ -23,7 +23,11 @@
     ],
     "categories": [
         "Data Science",
-        "Machine Learning"
+        "Machine Learning",
+        "Programming Languages",
+        "Snippets",
+        "Formatters",
+        "Other"
     ],
     "pricing": "Free",
     "preview": true,
