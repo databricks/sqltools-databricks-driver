@@ -8,7 +8,7 @@ import {ExtensionContext} from "vscode";
 import {DRIVER_ALIASES} from "./constants";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const {publisher, name, displayName} = require("../package.json");
+const {publisher, name} = require("../package.json");
 
 export async function activate(
     extContext: ExtensionContext
@@ -25,7 +25,7 @@ export async function activate(
     const extensionId = `${publisher}.${name}`;
     const plugin: IExtensionPlugin = {
         extensionId,
-        name: `${displayName} Plugin`,
+        name: `Databricks Plugin`,
         type: "driver",
         async register(extension) {
             // register ext part here
@@ -66,7 +66,7 @@ export async function activate(
     };
     api.registerPlugin(plugin);
     return {
-        driverName: displayName,
+        driverName: "Databricks",
         parseBeforeSaveConnection: ({connInfo}) => {
             /**
              * This hook is called before saving the connection using the assistant
