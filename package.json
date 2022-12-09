@@ -43,9 +43,13 @@
     "galleryBanner": {
         "theme": "light"
     },
+    "vsce": {
+        "dependencies": false,
+        "useYarn": false
+    },
     "scripts": {
         "vscode:prepublish": "yarn run build",
-        "vscode:package": "vsce package --yarn --allow-star-activation --githubBranch ${RELEASE_TAG:-main}",
+        "vscode:package": "vsce package --allow-star-activation --githubBranch ${RELEASE_TAG:-main}",
         "build": "rm -rf out && yarn run compile:ext && yarn run compile:ls",
         "esbuild": "esbuild --platform=node --tsconfig=./tsconfig.json --external:vscode --log-level=error --color=true --format=cjs",
         "compile:ext": "yarn run esbuild --bundle ./src/extension.ts --outfile=./out/extension.js --target=es2017 --define:process.env.PRODUCT=\"'ext'\"",
