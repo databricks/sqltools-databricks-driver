@@ -142,23 +142,24 @@ export class DatabricksDriver implements IConnectionDriver {
     }
 
     public async query(
-        query: string,
+        queries: string,
         opt: IQueryOptions = {}
     ): Promise<NSDatabase.IResult[]> {
         const session = await this.connection;
+        let results = []
 
-        try {
-            const queryResults = await session.execute(query);
+        for(let query of queries.split(";")){
+            try {
+                const queryResults = await session.execute(query);
 
-            const cols = [];
-            if (queryResults && queryResults.length > 0) {
-                for (const colName in queryResults[0]) {
-                    cols.push(colName);
+                const cols = [];
+                if (queryResults && queryResults.length > 0) {
+                    for (const colName in queryResults[0]) {
+                        cols.push(colName);
+                    }
                 }
-            }
 
-            return [
-                <NSDatabase.IResult>{
+                results.push(<NSDatabase.IResult>{
                     requestId: opt.requestId,
                     resultId: generateId(),
                     connId: this.getId(),
@@ -171,23 +172,26 @@ export class DatabricksDriver implements IConnectionDriver {
                     ],
                     query,
                     results: queryResults,
-                },
-            ];
-        } catch (error) {
-            return [
-                <NSDatabase.IResult>{
-                    requestId: opt.requestId,
-                    connId: this.getId(),
-                    resultId: generateId(),
-                    cols: [],
-                    messages: (<any>error).message,
-                    error: true,
-                    rawError: (<any>error).response.errorMessage,
-                    query,
-                    results: [],
-                },
-            ];
+                });
+            }
+            catch (error) {
+                results.push(
+                    <NSDatabase.IResult>{
+                        requestId: opt.requestId,
+                        connId: this.getId(),
+                        resultId: generateId(),
+                        cols: [],
+                        messages: (<any>error).message,
+                        error: true,
+                        rawError: (<any>error).response.errorMessage,
+                        query,
+                        results: [],
+                    });
+                return results;
+            }
         }
+        return results;
+        
     }
 
     public async testConnection() {
