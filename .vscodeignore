@@ -1,5 +1,6 @@
 node_modules/
 .github/
+.yarn/
 .vscode/**
 .vscode-test/**
 out/test/**
