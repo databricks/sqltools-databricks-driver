@@ -8,6 +8,8 @@ jobs:
     create-build-artifacts:
         uses: ./.github/workflows/create-build-artifacts.yml
         secrets: inherit
+        with:
+            release_tag: main
 
     create-release:
         needs: "create-build-artifacts"
