@@ -32,15 +32,9 @@ export async function activate(
             extension
                 .resourcesMap()
                 .set(`driver/${DRIVER_ALIASES[0].value}/icons`, {
-                    active: extContext.asAbsolutePath(
-                        "icons/databricks_active.png"
-                    ),
-                    default: extContext.asAbsolutePath(
-                        "icons/databricks_default.png"
-                    ),
-                    inactive: extContext.asAbsolutePath(
-                        "icons/databricks_inactive.png"
-                    ),
+                    active: extContext.asAbsolutePath("icons/active.png"),
+                    default: extContext.asAbsolutePath("icons/default.png"),
+                    inactive: extContext.asAbsolutePath("icons/inactive.png"),
                 });
             DRIVER_ALIASES.forEach(({value}) => {
                 extension
