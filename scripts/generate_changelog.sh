@@ -7,10 +7,10 @@ TAG=$(git tag -l --sort=-committerdate | grep -E "release-v(([0-9]+\.){2}[0-9]+)
 latestChangelog=$(mktemp /tmp/generate_changelog.XXXXXX)
 if [[ $TAG ]]; then
     echo "Release tag found. Generating changelog from $TAG"
-    yarn -s conventional-changelog --tag-prefix="release-v" >> $latestChangelog
+    yarn conventional-changelog --tag-prefix="release-v" >> $latestChangelog
 else
     echo "No release tag matching pattern 'release-v*' found. Generating changelog from begining"
-    yarn -s conventional-changelog >> $latestChangelog
+    yarn conventional-changelog >> $latestChangelog
 fi
 
 cat $latestChangelog | grep -Ev "Release: v.+" >> $2

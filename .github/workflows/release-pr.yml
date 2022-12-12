@@ -45,7 +45,7 @@ jobs:
 
             - name: Bump version
               if: ${{ inputs.version != '0.0.0' }}
-              run: yarn version --new-version ${{ inputs.version }}
+              run: yarn version ${{ inputs.version }}
 
             - name: Changelog
               id: create-changelog
