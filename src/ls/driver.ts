@@ -174,6 +174,7 @@ export class DatabricksDriver implements IConnectionDriver {
                 },
             ];
         } catch (error) {
+            console.error(error);
             return [
                 <NSDatabase.IResult>{
                     requestId: opt.requestId,
@@ -182,7 +183,7 @@ export class DatabricksDriver implements IConnectionDriver {
                     cols: [],
                     messages: (<any>error).message,
                     error: true,
-                    rawError: (<any>error).response.errorMessage,
+                    rawError: (<any>error).response?.errorMessage || error + "",
                     query,
                     results: [],
                 },
