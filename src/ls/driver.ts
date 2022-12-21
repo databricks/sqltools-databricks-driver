@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-console */
 import {
     IConnectionDriver,
@@ -12,6 +13,11 @@ import {v4 as generateId} from "uuid";
 import {DBSQLClient} from "@databricks/sql";
 import {DatabricksSession} from "./DatabricksSession";
 import IDBSQLSession from "@databricks/sql/dist/contracts/IDBSQLSession";
+
+const {
+    name: productName,
+    version: productVersion,
+} = require("../../package.json");
 
 export interface DriverOptions {
     host: string;
@@ -53,6 +59,7 @@ export class DatabricksDriver implements IConnectionDriver {
             host: this.credentials.host,
             path: this.credentials.path,
             token: this.credentials.token,
+            clientId: `${productName}/${productVersion}`,
         };
 
         this.connection = this.openSession(connectionOptions);
