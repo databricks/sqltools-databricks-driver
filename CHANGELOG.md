@@ -1,3 +1,10 @@
+# Release: v0.2.0
+
+## 0.2.0 (2022-12-21)
+
+-   Fix: Poperly configure catalog and improve error reporting, closes [#41](https://github.com/databricks/sqltools-databricks-driver/issues/41)
+-   Fix: Update icons in readme, closes [#34](https://github.com/databricks/sqltools-databricks-driver/issues/34)
+
 # Release: v0.1.1
 
 ## <small>0.1.1 (2022-12-12)</small>
