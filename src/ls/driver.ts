@@ -86,9 +86,12 @@ export class DatabricksDriver implements IConnectionDriver {
                     };
                     client.on("error", errorListener);
                 }),
-                (async function (): Promise<IDBSQLSession> {
+                (async (): Promise<IDBSQLSession> => {
                     const connection = await client.connect(connectionOptions);
-                    return connection.openSession();
+                    return connection.openSession({
+                        initialCatalog: this.catalog,
+                        initialSchema: this.schema,
+                    });
                 })(),
             ]);
         } catch (e: any) {
@@ -180,17 +183,23 @@ export class DatabricksDriver implements IConnectionDriver {
                     results: queryResults,
                 },
             ];
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
+
+            const rawMessage =
+                error.response?.errorMessage || error.message || error + "";
+
+            const message = error.response?.displayMessage || rawMessage;
+
             return [
                 <NSDatabase.IResult>{
                     requestId: opt.requestId,
                     connId: this.getId(),
                     resultId: generateId(),
                     cols: [],
-                    messages: (<any>error).message,
+                    messages: [message],
                     error: true,
-                    rawError: (<any>error).response?.errorMessage || error + "",
+                    rawError: rawMessage,
                     query,
                     results: [],
                 },
@@ -257,7 +266,7 @@ export class DatabricksDriver implements IConnectionDriver {
     ): Promise<NSDatabase.ITable[]> {
         console.time("get tables");
         const session = await this.connection;
-        const tables = await session.getTables(this._catalog, database.label);
+        const tables = await session.getTables(this.catalog, database.label);
         console.timeEnd("get tables");
 
         return tables.map((item) => ({
@@ -403,7 +412,7 @@ export class DatabricksDriver implements IConnectionDriver {
         const session = await this.connection;
         try {
             const schemas = await session.getSchemas(
-                this._catalog,
+                this.catalog,
                 `%${search}*`
             );
 
