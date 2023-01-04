@@ -22,6 +22,6 @@ This Visual Studio Code extension lets you run SQL queries against Databricks. I
 
 ![create-new-connection](/create-new-connection.png)
 
--   Fill in the connection form. The information you fill in this form can be found in two different places depending on the type of compute you are connecting to. Read this [documentation](https://docs.databricks.com/dev-tools/python-sql-connector.html#get-started) to learn more.
+-   Fill in the connection form. The information you fill in this form can be found in two different places depending on the type of compute you are connecting to. Read this [documentation](https://docs.databricks.com/dev-tools/sqltools-driver.html#connect-to-a-schema) to learn more.
 
 ![connection-form](/connection-form.png)
