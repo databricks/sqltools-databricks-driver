@@ -2,8 +2,7 @@
 
 ## <small>0.2.1 (2023-01-10)</small>
 
--   Bump json5 from 1.0.1 to 1.0.2 (#46) ([8b51860](https://github.com/databricks/sqltools-databricks-driver/commit/8b51860)), closes [#46](https://github.com/databricks/sqltools-databricks-driver/issues/46)
--   readme fix (#43) ([6956b15](https://github.com/databricks/sqltools-databricks-driver/commit/6956b15)), closes [#43](https://github.com/databricks/sqltools-databricks-driver/issues/43)
+-   Security Fix: Bump json5 from 1.0.1 to 1.0.2 (#46) ([8b51860](https://github.com/databricks/sqltools-databricks-driver/commit/8b51860)), closes [#46](https://github.com/databricks/sqltools-databricks-driver/issues/46)
 
 # Release: v0.2.0
 
