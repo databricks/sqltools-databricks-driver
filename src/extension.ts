@@ -81,7 +81,6 @@ export async function activate(
                 `databricks-${connInfo.host}${connInfo.path}`,
                 connInfo.token
             );
-
             delete connInfo.token;
 
             return connInfo;
