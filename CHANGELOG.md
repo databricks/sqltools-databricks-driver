@@ -1,3 +1,10 @@
+# Release: v0.3.0
+
+## 0.3.0 (2023-01-25)
+
+-   Feature: Don't store plain text tokens. Instead store tokens as VS Code secrets. Closes [#49](https://github.com/databricks/sqltools-databricks-driver/issues/49) [#45](https://github.com/databricks/sqltools-databricks-driver/issues/45)
+-   Fix: Don't require a leading `/` in paths, closes [#45](https://github.com/databricks/sqltools-databricks-driver/issues/45) [#48](https://github.com/databricks/sqltools-databricks-driver/issues/48)
+
 # Release: v0.2.1
 
 ## <small>0.2.1 (2023-01-10)</small>
