@@ -75,6 +75,8 @@ export async function activate(
                 .replace(/^https?:\/\//, "")
                 .replace(/\/$/, "");
 
+            connInfo.path = connInfo.path.replace(/^\/?/, "/");
+
             return connInfo;
         },
         parseBeforeEditConnection: ({connInfo}) => {
