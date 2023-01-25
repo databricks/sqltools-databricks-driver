@@ -2,10 +2,8 @@
 
 ## 0.3.0 (2023-01-25)
 
--   Don't store plain text tokens (#49) ([bce8ae9](https://github.com/databricks/sqltools-databricks-driver/commit/bce8ae9)), closes [#49](https://github.com/databricks/sqltools-databricks-driver/issues/49) [#45](https://github.com/databricks/sqltools-databricks-driver/issues/45)
--   fix #45 (#48) ([1b4384d](https://github.com/databricks/sqltools-databricks-driver/commit/1b4384d)), closes [#45](https://github.com/databricks/sqltools-databricks-driver/issues/45) [#48](https://github.com/databricks/sqltools-databricks-driver/issues/48)
--   fix packaging (#50) ([dc8d189](https://github.com/databricks/sqltools-databricks-driver/commit/dc8d189)), closes [#50](https://github.com/databricks/sqltools-databricks-driver/issues/50)
--   Update publish-to-vscode.yml ([f23b0d7](https://github.com/databricks/sqltools-databricks-driver/commit/f23b0d7))
+-   Feature: Don't store plain text tokens. Instead store tokens as VS Code secrets. Closes [#49](https://github.com/databricks/sqltools-databricks-driver/issues/49) [#45](https://github.com/databricks/sqltools-databricks-driver/issues/45)
+-   Fix: Don't require a leading `/` in paths, closes [#45](https://github.com/databricks/sqltools-databricks-driver/issues/45) [#48](https://github.com/databricks/sqltools-databricks-driver/issues/48)
 
 # Release: v0.2.1
 
