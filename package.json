@@ -82,7 +82,7 @@
         "@types/mocha": "^10.0.1",
         "@types/node": "^18.11.18",
         "@types/uuid": "^9.0.0",
-        "@types/vscode": "^1.74.0",
+        "@types/vscode": "^1.71.0",
         "@typescript-eslint/eslint-plugin": "^5.49.0",
         "@typescript-eslint/parser": "^5.49.0",
         "@vscode/vsce": "^2.16.0",
