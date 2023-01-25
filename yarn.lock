@@ -446,7 +446,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/vscode@npm:^1.74.0":
+"@types/vscode@npm:^1.71.0":
   version: 1.74.0
   resolution: "@types/vscode@npm:1.74.0"
   checksum: 25de153cc10136d32d425960c04687fdc26b79b49420d055799f01169e3141fa619d3ed6b3126c4ca4635d12aff2b77df51460e89235c71b55d570f8c08df71c
@@ -4388,7 +4388,7 @@ __metadata:
     "@types/mocha": ^10.0.1
     "@types/node": ^18.11.18
     "@types/uuid": ^9.0.0
-    "@types/vscode": ^1.74.0
+    "@types/vscode": ^1.71.0
     "@typescript-eslint/eslint-plugin": ^5.49.0
     "@typescript-eslint/parser": ^5.49.0
     "@vscode/vsce": ^2.16.0
