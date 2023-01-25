@@ -61,7 +61,7 @@ export async function activate(
     api.registerPlugin(plugin);
     return {
         driverName: "Databricks",
-        parseBeforeSaveConnection: ({connInfo}) => {
+        parseBeforeSaveConnection: async ({connInfo}) => {
             /**
              * This hook is called before saving the connection using the assistant
              * so you can do any transformations before saving it to disk.active
@@ -77,9 +77,15 @@ export async function activate(
 
             connInfo.path = connInfo.path.replace(/^\/?/, "/");
 
+            await extContext.secrets.store(
+                `databricks-${connInfo.host}${connInfo.path}`,
+                connInfo.token
+            );
+            delete connInfo.token;
+
             return connInfo;
         },
-        parseBeforeEditConnection: ({connInfo}) => {
+        parseBeforeEditConnection: async ({connInfo}) => {
             /**
              * This hook is called before editing the connection using the assistant
              * so you can do any transformations before editing it.
@@ -87,6 +93,18 @@ export async function activate(
              * Below is the exmaple for SQLite, where we use relative path to save,
              * but we transform to asolute before editing
              */
+            return connInfo;
+        },
+        resolveConnection: async ({connInfo}) => {
+            /**
+             * This hook is called after a connection definition has been fetched
+             * from settings and is about to be used to connect.
+             */
+            if (connInfo.token === undefined) {
+                connInfo.token = await extContext.secrets.get(
+                    `databricks-${connInfo.host}${connInfo.path}`
+                );
+            }
             return connInfo;
         },
         driverAliases: DRIVER_ALIASES,
