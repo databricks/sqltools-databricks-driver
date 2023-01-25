@@ -72,28 +72,14 @@ export class DatabricksDriver implements IConnectionDriver {
         token: string;
     }): Promise<DatabricksSession> {
         const client = new DBSQLClient({});
-
-        let errorListener;
         let session: IDBSQLSession;
 
-        // error handling is very cumbersome because the error is emitted after the
-        // connect promise is resolved.
         try {
-            session = await Promise.race([
-                new Promise<IDBSQLSession>((_, reject) => {
-                    errorListener = (error: any) => {
-                        reject(error);
-                    };
-                    client.on("error", errorListener);
-                }),
-                (async (): Promise<IDBSQLSession> => {
-                    const connection = await client.connect(connectionOptions);
-                    return connection.openSession({
-                        initialCatalog: this.catalog,
-                        initialSchema: this.schema,
-                    });
-                })(),
-            ]);
+            const connection = await client.connect(connectionOptions);
+            session = await connection.openSession({
+                initialCatalog: this.catalog,
+                initialSchema: this.schema,
+            });
         } catch (e: any) {
             if (e.statusCode === 403) {
                 throw new Error(
@@ -102,8 +88,6 @@ export class DatabricksDriver implements IConnectionDriver {
             } else {
                 throw e;
             }
-        } finally {
-            errorListener && client.removeListener("error", errorListener);
         }
         return new DatabricksSession(session);
     }
