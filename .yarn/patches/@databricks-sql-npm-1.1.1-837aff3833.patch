@@ -1,0 +1,37 @@
+diff --git a/dist/DBSQLClient.d.ts b/dist/DBSQLClient.d.ts
+index c0d935b7ec05d37b46ec376a74f3603bbe691d7b..58857f93ec71f3a2b712ba080da95796a878aec0 100644
+--- a/dist/DBSQLClient.d.ts
++++ b/dist/DBSQLClient.d.ts
+@@ -1,6 +1,7 @@
+ /// <reference types="node" />
+ import { EventEmitter } from 'events';
+ import TCLIService from '../thrift/TCLIService';
++import IAuthentication from './connection/contracts/IAuthentication';
+ import IDBSQLClient, { ConnectionOptions, OpenSessionRequest, ClientOptions } from './contracts/IDBSQLClient';
+ import IDBSQLSession from './contracts/IDBSQLSession';
+ export default class DBSQLClient extends EventEmitter implements IDBSQLClient {
+@@ -21,7 +22,7 @@ export default class DBSQLClient extends EventEmitter implements IDBSQLClient {
+      * @example
+      * const session = client.connect({host, path, token});
+      */
+-    connect(options: ConnectionOptions): Promise<IDBSQLClient>;
++    connect(options: ConnectionOptions, authProvider?: IAuthentication): Promise<IDBSQLClient>;
+     /**
+      * Starts new session
+      * @public
+diff --git a/dist/DBSQLClient.js b/dist/DBSQLClient.js
+index 23fe9bc5c3b12a13f84e7e4f295d48d5081a2ee3..6bcfe507df5db0deddd6ee5c02aaa1a1257bd56b 100644
+--- a/dist/DBSQLClient.js
++++ b/dist/DBSQLClient.js
+@@ -83,9 +83,9 @@ class DBSQLClient extends events_1.EventEmitter {
+      * @example
+      * const session = client.connect({host, path, token});
+      */
+-    connect(options) {
++    connect(options, authProvider) {
+         return __awaiter(this, void 0, void 0, function* () {
+-            this.authProvider = new PlainHttpAuthentication_1.default({
++            this.authProvider = authProvider || new PlainHttpAuthentication_1.default({
+                 username: 'token',
+                 password: options.token,
+                 headers: {

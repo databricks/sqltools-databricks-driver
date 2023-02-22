@@ -6,6 +6,8 @@ import {
 } from "@sqltools/types";
 import {ExtensionContext} from "vscode";
 import {DRIVER_ALIASES} from "./constants";
+import {getConnectionMethod} from "./utils";
+import {initDatabricksCommands} from "./DatabricksCommands";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const {publisher, name} = require("../package.json");
@@ -53,6 +55,8 @@ export async function activate(
                         extContext.asAbsolutePath("ui.schema.json")
                     );
             });
+            await initDatabricksCommands(extension.client, vscode);
+
             await extension.client.sendRequest("ls/RegisterPlugin", {
                 path: extContext.asAbsolutePath("out/ls/plugin.js"),
             });
@@ -70,18 +74,20 @@ export async function activate(
              * and later we transform it back to absolute before editing
              */
 
-            // only save the host part of the URL
-            connInfo.host = connInfo.host
-                .replace(/^https?:\/\//, "")
-                .replace(/\/$/, "");
+            if (getConnectionMethod(connInfo) === "PAT") {
+                // only save the host part of the URL
+                connInfo.host = connInfo.host
+                    .replace(/^https?:\/\//, "")
+                    .replace(/\/$/, "");
 
-            connInfo.path = connInfo.path.replace(/^\/?/, "/");
+                connInfo.path = connInfo.path.replace(/^\/?/, "/");
 
-            await extContext.secrets.store(
-                `databricks-${connInfo.host}${connInfo.path}`,
-                connInfo.token
-            );
-            delete connInfo.token;
+                await extContext.secrets.store(
+                    `databricks-${connInfo.host}${connInfo.path}`,
+                    connInfo.token
+                );
+                delete connInfo.token;
+            }
 
             return connInfo;
         },
@@ -100,10 +106,12 @@ export async function activate(
              * This hook is called after a connection definition has been fetched
              * from settings and is about to be used to connect.
              */
-            if (connInfo.token === undefined) {
-                connInfo.token = await extContext.secrets.get(
-                    `databricks-${connInfo.host}${connInfo.path}`
-                );
+            if (getConnectionMethod(connInfo) === "PAT") {
+                if (connInfo.token === undefined) {
+                    connInfo.token = await extContext.secrets.get(
+                        `databricks-${connInfo.host}${connInfo.path}`
+                    );
+                }
             }
             return connInfo;
         },
