@@ -50,7 +50,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@databricks/sql@npm:^1.1.1":
+"@databricks/sql@npm:1.1.1":
   version: 1.1.1
   resolution: "@databricks/sql@npm:1.1.1"
   dependencies:
@@ -61,6 +61,20 @@ __metadata:
     uuid: ^9.0.0
     winston: ^3.8.2
   checksum: 21258b66cb12a97ff4be7d51933166f36cc4487caf9716f4840ac495fe62e6f4bf2ee977be06217c00bc9492fe012895e2ab648dad3734affedcc15fb8339daa
+  languageName: node
+  linkType: hard
+
+"@databricks/sql@patch:@databricks/sql@npm%3A1.1.1#./.yarn/patches/@databricks-sql-npm-1.1.1-837aff3833.patch::locator=sqltools-databricks-driver%40workspace%3A.":
+  version: 1.1.1
+  resolution: "@databricks/sql@patch:@databricks/sql@npm%3A1.1.1#./.yarn/patches/@databricks-sql-npm-1.1.1-837aff3833.patch::version=1.1.1&hash=feb267&locator=sqltools-databricks-driver%40workspace%3A."
+  dependencies:
+    commander: ^9.3.0
+    node-int64: ^0.4.0
+    patch-package: ^6.5.0
+    thrift: ^0.16.0
+    uuid: ^9.0.0
+    winston: ^3.8.2
+  checksum: f83c413bfa5cb2728e3f69d19acd148955e10381852806cb9aa7cbd160b5f80b875f8a4c5cd0eba95148c53b93bd3764473b3071f8945cbde1d7828aad908f30
   languageName: node
   linkType: hard
 
@@ -432,7 +446,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/vscode@npm:^1.75.1":
+"@types/vscode@npm:^1.71.0":
   version: 1.75.1
   resolution: "@types/vscode@npm:1.75.1"
   checksum: dc80488751a9dcfc3d93d0e1face19cd56c576762fe605ab09f405b7aa836d2864138367042141c6363c0e06a27b4444d1e3a638515cb437b986b44f3478f723
@@ -4569,7 +4583,7 @@ __metadata:
     "@types/mocha": ^10.0.1
     "@types/node": ^18.14.0
     "@types/uuid": ^9.0.1
-    "@types/vscode": ^1.75.1
+    "@types/vscode": ^1.71.0
     "@typescript-eslint/eslint-plugin": ^5.53.0
     "@typescript-eslint/parser": ^5.53.0
     "@vscode/vsce": ^2.17.0

@@ -2,18 +2,15 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
-        "host": {
-            "title": "Host",
+        "connectionMethod": {
+            "title": "Connect using",
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "enum": ["Hostname and Token", "VS Code Extension (beta)"],
+            "default": "Hostname and Token"
         },
         "path": {
             "title": "Path",
-            "type": "string",
-            "minLength": 1
-        },
-        "token": {
-            "title": "Token",
             "type": "string",
             "minLength": 1
         },
@@ -29,5 +26,36 @@
             "minLength": 1
         }
     },
-    "required": ["host", "path", "token", "catalog"]
+    "dependencies": {
+        "connectionMethod": {
+            "oneOf": [
+                {
+                    "properties": {
+                        "connectionMethod": {
+                            "enum": ["Hostname and Token"]
+                        },
+                        "host": {
+                            "title": "Host",
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "token": {
+                            "title": "Token",
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "required": ["host", "token"]
+                },
+                {
+                    "properties": {
+                        "connectionMethod": {
+                            "enum": ["VS Code Extension (beta)"]
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "required": ["connectionMethod", "path", "catalog"]
 }

@@ -13,6 +13,10 @@ import {v4 as generateId} from "uuid";
 import {DBSQLClient} from "@databricks/sql";
 import {DatabricksSession} from "./DatabricksSession";
 import IDBSQLSession from "@databricks/sql/dist/contracts/IDBSQLSession";
+import {getDatabricksCommands} from "./plugin";
+import {ExtensionAuthProvider} from "./ExtensionAuthProvider";
+import {getConnectionMethod} from "../utils";
+import IAuthentication from "@databricks/sql/dist/connection/contracts/IAuthentication";
 
 const {
     name: productName,
@@ -70,11 +74,22 @@ export class DatabricksDriver implements IConnectionDriver {
         host: string;
         path: string;
         token: string;
+        clientId: string;
     }): Promise<DatabricksSession> {
         const client = new DBSQLClient({});
 
         let errorListener;
         let session: IDBSQLSession;
+
+        let authProvider: IAuthentication | undefined;
+        if (getConnectionMethod(connectionOptions) === "Extension") {
+            authProvider = new ExtensionAuthProvider(
+                getDatabricksCommands(),
+                connectionOptions.clientId
+            );
+            connectionOptions.host =
+                await getDatabricksCommands().getHostname();
+        }
 
         // error handling is very cumbersome because the error is emitted after the
         // connect promise is resolved.
@@ -87,7 +102,10 @@ export class DatabricksDriver implements IConnectionDriver {
                     client.on("error", errorListener);
                 }),
                 (async (): Promise<IDBSQLSession> => {
-                    const connection = await client.connect(connectionOptions);
+                    const connection = await client.connect(
+                        connectionOptions,
+                        authProvider
+                    );
                     return connection.openSession({
                         initialCatalog: this.catalog,
                         initialSchema: this.schema,

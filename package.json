@@ -81,7 +81,7 @@
         "@types/mocha": "^10.0.1",
         "@types/node": "^18.14.0",
         "@types/uuid": "^9.0.1",
-        "@types/vscode": "^1.75.1",
+        "@types/vscode": "^1.71.0",
         "@typescript-eslint/eslint-plugin": "^5.53.0",
         "@typescript-eslint/parser": "^5.53.0",
         "@vscode/vsce": "^2.17.0",
@@ -98,6 +98,6 @@
     },
     "packageManager": "yarn@3.3.0",
     "resolutions": {
-        "@databricks/sql@^1.0.0": "patch:@databricks/sql@npm%3A1.0.0#./.yarn/patches/@databricks-sql-npm-1.0.0-095de63363.patch"
+        "@databricks/sql@^1.1.1": "patch:@databricks/sql@npm%3A1.1.1#./.yarn/patches/@databricks-sql-npm-1.1.1-837aff3833.patch"
     }
 }
