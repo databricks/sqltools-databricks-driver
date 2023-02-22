@@ -1,3 +1,13 @@
+# Release: v0.4.0
+
+## 0.4.0 (2023-02-22)
+
+-   Add support for auth through Databricks extension (#60) ([428f119](https://github.com/databricks/sqltools-databricks-driver/commit/428f119)), closes [#60](https://github.com/databricks/sqltools-databricks-driver/issues/60)
+-   Bump http-cache-semantics from 4.1.0 to 4.1.1 ([8a7c387](https://github.com/databricks/sqltools-databricks-driver/commit/8a7c387))
+-   Change logo to disambiguate from the main Databricks extension (#59) ([262183c](https://github.com/databricks/sqltools-databricks-driver/commit/262183c)), closes [#59](https://github.com/databricks/sqltools-databricks-driver/issues/59) [#56](https://github.com/databricks/sqltools-databricks-driver/issues/56)
+-   Update dependencies ([5909a67](https://github.com/databricks/sqltools-databricks-driver/commit/5909a67)), closes [#58](https://github.com/databricks/sqltools-databricks-driver/issues/58)
+-   we can only have 10 keywords ([b950248](https://github.com/databricks/sqltools-databricks-driver/commit/b950248))
+
 # Release: v0.3.0
 
 ## 0.3.0 (2023-01-25)
