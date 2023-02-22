@@ -1,3 +1,10 @@
+# Release: v0.4.0
+
+## 0.4.0 (2023-02-22)
+
+-   Preview Feature: Add support for authenticating through the official [Databricks extension](https://marketplace.visualstudio.com/items?itemName=databricks.databricks). This indirectly also add support for logging in thei the Azure CLI. (#60) ([428f119](https://github.com/databricks/sqltools-databricks-driver/commit/428f119)), closes [#60](https://github.com/databricks/sqltools-databricks-driver/issues/60)
+-   Minor: Change logo to disambiguate from the main Databricks extension (#59) ([262183c](https://github.com/databricks/sqltools-databricks-driver/commit/262183c)), closes [#59](https://github.com/databricks/sqltools-databricks-driver/issues/59) [#56](https://github.com/databricks/sqltools-databricks-driver/issues/56)
+
 # Release: v0.3.0
 
 ## 0.3.0 (2023-01-25)
