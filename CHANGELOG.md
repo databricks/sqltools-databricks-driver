@@ -1,3 +1,10 @@
+# Release: v0.4.1
+
+## <small>0.4.1 (2023-03-10)</small>
+
+-   Also publish to OpenVSIX (#62) ([04e792a](https://github.com/databricks/sqltools-databricks-driver/commit/04e792a)), closes [#62](https://github.com/databricks/sqltools-databricks-driver/issues/62)
+-   Update CHANGELOG.md ([3c098b0](https://github.com/databricks/sqltools-databricks-driver/commit/3c098b0))
+
 # Release: v0.4.0
 
 ## 0.4.0 (2023-02-22)
