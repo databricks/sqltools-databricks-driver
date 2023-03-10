@@ -50,7 +50,17 @@ jobs:
             - name: Publish to VS Code Marketplace
               run: |
                   vsce -V
-                  vsce publish -p ${{ secrets.VSCE_TOKEN }} --packagePath sqltools-databricks-driver-*.vsix --githubBranch main --allow-star-activation --skip-duplicate
+                  vsce publish -p ${{ secrets.VSCE_TOKEN }} --packagePath sqltools-databricks-driver-*.vsix --allow-star-activation --skip-duplicate
 
               env:
                   VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+
+            - name: Install ovsx
+              run: npm install -g ovsx
+
+            - name: Publish to Open VSIX
+              run: |
+                  ovsx verify-pat databricks
+                  ovsx publish --packagePath sqltools-databricks-driver-*.vsix --skip-duplicate
+              env:
+                  OVSX_PAT: ${{ secrets.OVSX_PAT }}
