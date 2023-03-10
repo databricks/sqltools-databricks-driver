@@ -1,3 +1,9 @@
+# Release: v0.4.1
+
+## <small>0.4.1 (2023-03-10)</small>
+
+-   Publish the extension to [OpenVSIX](https://open-vsx.org/extension/databricks/sqltools-databricks-driver) (#62) ([04e792a](https://github.com/databricks/sqltools-databricks-driver/commit/04e792a)), closes [#62](https://github.com/databricks/sqltools-databricks-driver/issues/62)
+
 # Release: v0.4.0
 
 ## 0.4.0 (2023-02-22)
