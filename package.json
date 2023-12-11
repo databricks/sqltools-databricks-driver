@@ -2,7 +2,7 @@
     "name": "sqltools-databricks-driver",
     "displayName": "Databricks Driver for SQLTools",
     "description": "Databricks SQL driver for SQLTools",
-    "version": "0.4.1",
+    "version": "0.4.2",
     "engines": {
         "vscode": "^1.83.0"
     },
