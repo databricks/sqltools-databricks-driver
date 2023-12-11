@@ -1,3 +1,10 @@
+# Release: v0.4.2
+
+## <small>0.4.2 (2023-12-11)</small>
+
+-   Fix last branch (#75) ([a022e9b](https://github.com/databricks/sqltools-databricks-driver/commit/a022e9b)), closes [#75](https://github.com/databricks/sqltools-databricks-driver/issues/75)
+-   Fix regression with Databricks Extension Auth (#74) ([4af9a33](https://github.com/databricks/sqltools-databricks-driver/commit/4af9a33)), closes [#74](https://github.com/databricks/sqltools-databricks-driver/issues/74)
+
 # Release: v0.4.1
 
 ## <small>0.4.1 (2023-03-10)</small>
