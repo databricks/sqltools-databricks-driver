@@ -3,13 +3,13 @@
  */
 
 import {ILanguageServer} from "@sqltools/types";
-import {Headers as HeaderFields} from "./types";
+import {HeadersInit} from "./types";
 import {IExtension} from "@sqltools/types";
 
 export class DatabricksCommandsClient {
     constructor(private server: ILanguageServer) {}
 
-    async authenticate(headers: HeaderFields) {
+    async authenticate(headers: HeadersInit): Promise<HeadersInit> {
         return await this.server.sendRequest("db/authenticate", headers);
     }
 
@@ -55,7 +55,7 @@ export async function initDatabricksCommands(
 
     await client.onRequest(
         "db/authenticate",
-        async (headerFields: HeaderFields) => {
+        async (headerFields: HeadersInit) => {
             const apiClient = await getApiClient();
             const headers = new Headers(headerFields);
             await apiClient.config.authenticate(headers);
@@ -63,7 +63,7 @@ export async function initDatabricksCommands(
             return [...headers.entries()].reduce((obj, [key, value]) => {
                 obj[key] = value;
                 return obj;
-            }, {} as HeaderFields);
+            }, {} as HeadersInit);
         }
     );
 

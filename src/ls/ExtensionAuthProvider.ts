@@ -1,11 +1,10 @@
 import IAuthentication from "@databricks/sql/dist/connection/contracts/IAuthentication";
-import ITransport from "@databricks/sql/dist/connection/contracts/ITransport";
 import {buildUserAgentString} from "@databricks/sql/dist/utils";
 import {DatabricksCommandsClient} from "../DatabricksCommands";
-import {Headers} from "../types";
+import {HeadersInit} from "../types";
 
 export class ExtensionAuthProvider implements IAuthentication {
-    private headers: Headers;
+    private headers: HeadersInit;
 
     constructor(
         private dbCommands: DatabricksCommandsClient,
@@ -15,10 +14,8 @@ export class ExtensionAuthProvider implements IAuthentication {
         this.headers["User-Agent"] = buildUserAgentString(clientId);
     }
 
-    async authenticate(transport: ITransport): Promise<ITransport> {
+    async authenticate(): Promise<HeadersInit> {
         const headers = await this.dbCommands.authenticate(this.headers);
-        transport.setOptions("headers", headers);
-
-        return transport;
+        return headers;
     }
 }

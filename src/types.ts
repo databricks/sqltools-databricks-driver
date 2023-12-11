@@ -1,1 +1,1 @@
-export type Headers = Record<string, string>;
+export type HeadersInit = Record<string, string>;
