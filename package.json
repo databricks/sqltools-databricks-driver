@@ -4,7 +4,7 @@
     "description": "Databricks SQL driver for SQLTools",
     "version": "0.4.1",
     "engines": {
-        "vscode": "^1.71.0"
+        "vscode": "^1.83.0"
     },
     "publisher": "databricks",
     "license": "LicenseRef-LICENSE",

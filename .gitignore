@@ -5,3 +5,4 @@ out/
 experiments/
 yarn-error.log
 .yarn/cache/
+.databricks/
