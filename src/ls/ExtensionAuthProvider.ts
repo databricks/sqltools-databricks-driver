@@ -16,10 +16,8 @@ export class ExtensionAuthProvider implements IAuthentication {
     }
 
     async authenticate(transport: ITransport): Promise<ITransport> {
-        transport.setOptions(
-            "headers",
-            await this.dbCommands.authenticate(this.headers)
-        );
+        const headers = await this.dbCommands.authenticate(this.headers);
+        transport.setOptions("headers", headers);
 
         return transport;
     }

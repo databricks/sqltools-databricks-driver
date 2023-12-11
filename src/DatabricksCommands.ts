@@ -3,13 +3,13 @@
  */
 
 import {ILanguageServer} from "@sqltools/types";
-import {Headers} from "./types";
+import {Headers as HeaderFields} from "./types";
 import {IExtension} from "@sqltools/types";
 
 export class DatabricksCommandsClient {
     constructor(private server: ILanguageServer) {}
 
-    async authenticate(headers: Headers) {
+    async authenticate(headers: HeaderFields) {
         return await this.server.sendRequest("db/authenticate", headers);
     }
 
@@ -53,11 +53,19 @@ export async function initDatabricksCommands(
         return connectionManager.workspaceClient.apiClient;
     }
 
-    await client.onRequest("db/authenticate", async (headers: Headers) => {
-        const apiClient = await getApiClient();
-        await apiClient.config.authenticate(headers);
-        return headers;
-    });
+    await client.onRequest(
+        "db/authenticate",
+        async (headerFields: HeaderFields) => {
+            const apiClient = await getApiClient();
+            const headers = new Headers(headerFields);
+            await apiClient.config.authenticate(headers);
+
+            return [...headers.entries()].reduce((obj, [key, value]) => {
+                obj[key] = value;
+                return obj;
+            }, {} as HeaderFields);
+        }
+    );
 
     await client.onRequest("db/getHostname", async () => {
         const apiClient = await getApiClient();

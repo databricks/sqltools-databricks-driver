@@ -4,7 +4,7 @@
     "description": "Databricks SQL driver for SQLTools",
     "version": "0.4.1",
     "engines": {
-        "vscode": "^1.71.0"
+        "vscode": "^1.83.0"
     },
     "publisher": "databricks",
     "license": "LicenseRef-LICENSE",
@@ -72,29 +72,29 @@
     ],
     "main": "./out/extension.js",
     "dependencies": {
-        "@databricks/sql": "^1.1.1",
+        "@databricks/sql": "^1.6.1",
         "@sqltools/base-driver": "^0.1.11",
         "@sqltools/types": "^0.1.7",
-        "uuid": "^9.0.0"
+        "uuid": "^9.0.1"
     },
     "devDependencies": {
-        "@types/mocha": "^10.0.1",
-        "@types/node": "^18.15.0",
-        "@types/uuid": "^9.0.1",
-        "@types/vscode": "^1.71.0",
-        "@typescript-eslint/eslint-plugin": "^5.54.1",
-        "@typescript-eslint/parser": "^5.54.1",
-        "@vscode/vsce": "^2.18.0",
-        "conventional-changelog-cli": "^2.2.2",
-        "esbuild": "^0.17.11",
-        "eslint": "^8.35.0",
-        "eslint-config-prettier": "^8.7.0",
+        "@types/mocha": "^10.0.6",
+        "@types/node": "^18.19.3",
+        "@types/uuid": "^9.0.7",
+        "@types/vscode": "^1.85.0",
+        "@typescript-eslint/eslint-plugin": "^6.13.2",
+        "@typescript-eslint/parser": "^6.13.2",
+        "@vscode/vsce": "^2.22.0",
+        "conventional-changelog-cli": "^4.1.0",
+        "esbuild": "^0.19.9",
+        "eslint": "^8.55.0",
+        "eslint-config-prettier": "^9.1.0",
         "eslint-plugin-no-only-tests": "^3.1.0",
         "mocha": "^10.2.0",
-        "prettier": "^2.8.4",
+        "prettier": "^3.1.1",
         "ts-mocha": "^10.0.0",
         "ts-mockito": "^2.6.1",
-        "typescript": "^4.9.5"
+        "typescript": "^5.3.3"
     },
     "packageManager": "yarn@3.3.0",
     "resolutions": {
