@@ -287,7 +287,11 @@ export class DatabricksDriver implements IConnectionDriver {
         const tables = await session.getTables(this.catalog, database.label);
         console.timeEnd("get tables");
 
-        return tables.map((item) => ({
+        return tables.sort((a,b) => {
+            if (a.TABLE_NAME < b.TABLE_NAME) return -1;
+            else if (a.TABLE_NAME > b.TABLE_NAME) return 1;
+            else return 0;
+        }).map((item) => ({
             type: ContextValue.TABLE,
             database: item.TABLE_CAT,
             schema: item.TABLE_SCHEM,
